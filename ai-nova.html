@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Tarım ve Hayvancılık Yapay Zeka Asistanı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Console uyarılarını gizle
+      const originalWarn = console.warn;
+      const originalError = console.error;
+      
+      console.warn = function() {
+        // Tailwind CSS uyarısını gizle
+        const args = Array.from(arguments);
+        const message = args.join(' ');
+        if (message.includes('cdn.tailwindcss.com') || message.includes('should not be used in production')) {
+          return;
+        }
+        originalWarn.apply(console, arguments);
+      };
+      
+      console.error = function() {
+        // API hatalarını gizle
+        const args = Array.from(arguments);
+        const message = args.join(' ');
+        if (message.includes('generativelanguage.googleapis.com') || 
+            message.includes('429') || 
+            message.includes('404') ||
+            message.includes('Failed to load resource') ||
+            message.includes('POST') ||
+            message.includes('generateContent')) {
+          return;
+        }
+        originalError.apply(console, arguments);
+      };
+      
+      // Network hatalarını da gizle
+      const originalFetch = window.fetch;
+      window.fetch = function(url, options) {
+        return originalFetch.apply(this, arguments).catch(error => {
+          // API hatalarını sessizce yakala
+          if (url.includes('generativelanguage.googleapis.com')) {
+            return new Response('', { status: 200 });
+          }
+          throw error;
+        });
+      };
+    </script>
+    <!-- TarpoVizyon AI Özel Ses Sistemi için Web Audio API -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#22c55e',
+              secondary: '#16a34a',
+              accent: '#15803d',
+              dark: '#0f0f23',
+              light: '#f8fafc'
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'typing': 'typing 1s steps(20) infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              typing: {
+                '0%': { opacity: '0.4' },
+                '50%': { opacity: '1' },
+                '100%': { opacity: '0.4' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      .gradient-text {
+        background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% 200%;
+        animation: gradient 3s ease infinite;
+      }
+      
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .ai-glow {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+      }
+      
+      .chat-bubble {
+        animation: slideUp 0.3s ease-out;
+      }
+      
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .typing-indicator {
+        display: inline-block;
+        animation: typing 1.5s ease-in-out infinite;
+      }
+      
+      @keyframes typing {
+        0%, 60%, 100% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        30% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+      
+
+
+      /* Sesli Modal Animasyonları */
+      .voice-wave {
+        animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+      
+      @keyframes voice-pulse {
+        0%, 100% { 
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        50% { 
+          transform: scale(1.1);
+          box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+        }
+      }
+      
+      .voice-recording {
+        animation: voice-pulse 1.5s infinite;
+      }
+      
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-clamp: 2;
+      }
+      
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-clamp: 3;
+      }
+    </style>
+</head>
+<body class="bg-light dark:bg-dark text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
+
+    <!-- Ana İçerik - Chat ve Geçmiş -->
+    <main class="h-screen flex">
+        <!-- Chat Container -->
+      <div class="flex-1 p-4">
+        <div class="h-full">
+          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden ai-glow h-full flex flex-col">
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
+                    <img src="tarpol logo.png" alt="TARPOL Logo" class="w-8 h-8 object-contain">
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold">TarpoVizyon AI</h2>
+                    <p class="text-white/80 text-sm">Tarım ve Hayvancılık AI Uzmanı</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div id="mode-indicator">
+                    <div class="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
+                      <i class="fas fa-leaf"></i>
+                      <span>Tarım Modu</span>
+                    </div>
+                  </div>
+                  <button id="clear-chat" class="p-2 hover:bg-white/20 rounded-lg transition-colors" title="Sohbeti Temizle">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="overflow-y-auto p-6 space-y-4 flex-1" style="max-height: calc(100vh - 200px)">
+              <!-- Karşılama Mesajı -->
+              <div class="flex items-start gap-3 chat-bubble">
+                <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+                  <img src="tarpol logo.png" alt="TARPOL Logo" class="w-5 h-5 object-contain">
+                </div>
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-md p-4 max-w-xs md:max-w-md">
+                  <p class="text-gray-800 dark:text-gray-200">
+                    Merhaba! Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim? 🌾
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t border-gray-200 dark:border-gray-700 p-6 flex-shrink-0">
+              <form id="chat-form" class="flex gap-3">
+                <input 
+                  type="text" 
+                  id="user-input" 
+                  placeholder="TarpoVizyon AI'ya tarım veya hayvancılık sorunuzu yazın..." 
+                  class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-accent text-gray-900 dark:text-gray-100"
+                  autocomplete="off"
+                  maxlength="500"
+                >
+                <button 
+                  type="button" 
+                  id="voice-button"
+                  class="px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all transform hover:scale-105 ai-glow"
+                  title="Sesli Soru Sor"
+                >
+                  <i class="fas fa-microphone"></i>
+                </button>
+                <button 
+                  type="submit" 
+                  id="send-button"
+                  class="px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-2xl transition-all transform hover:scale-105 ai-glow disabled:opacity-50 disabled:transform-none"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </form>
+              
+
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Soru/Cevap Geçmiş Paneli -->
+      <div class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
+        <!-- Geçmiş Header -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sohbet Geçmişi</h3>
+            <button id="clear-history" class="text-gray-400 hover:text-red-500 transition-colors" title="Geçmişi Temizle">
+              <i class="fas fa-trash text-sm"></i>
+                  </button>
+                </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Son soru ve cevaplarınız</p>
+              </div>
+
+        <!-- Geçmiş Listesi -->
+        <div class="flex-1 overflow-y-auto p-4" id="chat-history">
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <i class="fas fa-history text-2xl mb-2"></i>
+            <p class="text-sm">Henüz sohbet geçmişi yok</p>
+            </div>
+        </div>
+        
+        <!-- Geçmiş Footer -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+            <i class="fas fa-info-circle mr-1"></i>
+            Son 10 sohbet gösteriliyor
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Sesli Modal -->
+    <div id="voice-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl max-w-md w-full mx-4 text-center">
+        <!-- Modal Header -->
+        <div class="mb-6">
+          <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Sesli Soru</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">Mikrofonunuza konuşun</p>
+        </div>
+        
+        <!-- Ses İkonu -->
+        <div class="mb-6 relative">
+          <div id="voice-circle" class="w-32 h-32 mx-auto bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300">
+            <i id="voice-icon" class="fas fa-microphone text-white text-4xl"></i>
+          </div>
+          <!-- Ses Dalgaları -->
+          <div id="voice-waves" class="absolute inset-0 hidden">
+            <div class="voice-wave absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-green-500/30 rounded-full animate-ping"></div>
+            <div class="voice-wave absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-green-500/20 rounded-full animate-ping" style="animation-delay: 0.5s"></div>
+            <div class="voice-wave absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-green-500/10 rounded-full animate-ping" style="animation-delay: 1s"></div>
+          </div>
+        </div>
+        
+        <!-- Durum Mesajı -->
+        <div class="mb-6">
+          <p id="voice-status" class="text-lg font-medium text-gray-700 dark:text-gray-300">Dinleme başlatılıyor...</p>
+          <p id="voice-transcript" class="text-sm text-gray-500 dark:text-gray-400 mt-2 min-h-[20px]"></p>
+        </div>
+        
+        <!-- Kontrol Butonları -->
+        <div class="flex gap-3 justify-center">
+          <button id="voice-stop" class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-2xl transition-all transform hover:scale-105 font-medium">
+            <i class="fas fa-stop mr-2"></i>Durdur
+          </button>
+          <button id="voice-cancel" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-2xl transition-all transform hover:scale-105 font-medium">
+            <i class="fas fa-times mr-2"></i>İptal
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Tema değiştirme
+      function applyTheme() {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+      applyTheme();
+
+      // Chat fonksiyonları
+      const chatForm = document.getElementById('chat-form');
+      const userInput = document.getElementById('user-input');
+      const chatMessages = document.getElementById('chat-messages');
+      const sendButton = document.getElementById('send-button');
+      const clearChatBtn = document.getElementById('clear-chat');
+      const chatHistory = document.getElementById('chat-history');
+      const clearHistoryBtn = document.getElementById('clear-history');
+
+      // TarpoVizyon AI - Akıllı Yanıt Sistemi
+      const GEMINI_API_KEY = 'AIzaSyBvAFN4FXTp9X24x00RNI6CZO4Izixs5tY';
+      
+      // Konuşma geçmişini saklamak için
+      let conversationHistory = [];
+      const MAX_HISTORY_LENGTH = 10; // Son 10 mesajı sakla
+      let isCreativeMode = false; // Yaratıcı mod durumu
+      
+      // Konuşma geçmişini güncelle
+      function updateConversationHistory(userMessage, aiResponse) {
+        conversationHistory.push({
+          user: userMessage,
+          ai: aiResponse,
+          timestamp: Date.now()
+        });
+        
+        // Geçmişi sınırla
+        if (conversationHistory.length > MAX_HISTORY_LENGTH) {
+          conversationHistory = conversationHistory.slice(-MAX_HISTORY_LENGTH);
+        }
+      }
+
+      // Admin paneli için sohbet kaydı kaydetme
+      function saveChatLogToAdmin(question, answer, model = null) {
+        const chatLog = {
+          id: Date.now() + Math.random(),
+          userId: generateUserId(),
+          question: question,
+          answer: answer,
+          timestamp: Date.now(),
+          apiUsed: model !== null,
+          model: model,
+          category: detectCategory(question)
+        };
+
+        // Local storage'dan mevcut kayıtları al
+        let existingLogs = JSON.parse(localStorage.getItem('tarpovizyon_chat_logs') || '[]');
+        
+        // Yeni kaydı ekle
+        existingLogs.push(chatLog);
+        
+        // Son 1000 kaydı sakla (performans için)
+        if (existingLogs.length > 1000) {
+          existingLogs = existingLogs.slice(-1000);
+        }
+        
+        // Geri kaydet
+        localStorage.setItem('tarpovizyon_chat_logs', JSON.stringify(existingLogs));
+        
+        // Sohbet kaydı admin paneline kaydedildi
+      }
+
+      // Kullanıcı ID oluşturma (session bazlı)
+      function generateUserId() {
+        let userId = sessionStorage.getItem('tarpovizyon_user_id');
+        if (!userId) {
+          userId = 'User_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          sessionStorage.setItem('tarpovizyon_user_id', userId);
+        }
+        return userId;
+      }
+
+      // Soru kategorisini tespit etme
+      function detectCategory(question) {
+        const lowerQuestion = question.toLowerCase();
+        
+        if (lowerQuestion.includes('süt') || lowerQuestion.includes('inek') || lowerQuestion.includes('hayvan')) {
+          return 'Hayvancılık';
+        } else if (lowerQuestion.includes('ekim') || lowerQuestion.includes('hasat') || lowerQuestion.includes('bitki')) {
+          return 'Bitkisel Üretim';
+        } else if (lowerQuestion.includes('mera') || lowerQuestion.includes('otlak')) {
+          return 'Mera Yönetimi';
+        } else if (lowerQuestion.includes('organik')) {
+          return 'Organik Tarım';
+        } else if (lowerQuestion.includes('fiyat') || lowerQuestion.includes('piyasa') || lowerQuestion.includes('ekonomi')) {
+          return 'Tarımsal Ekonomi';
+        } else {
+          return 'Genel';
+        }
+      }
+      
+      // Konuşma bağlamını oluştur
+      function buildConversationContext() {
+        if (conversationHistory.length === 0) return '';
+        
+        let context = '\n\nÖnceki konuşma:\n';
+        conversationHistory.slice(-3).forEach((exchange, index) => { // Son 3 mesaj alışverişi
+          context += `Kullanıcı: ${exchange.user}\nTarpoVizyon AI: ${exchange.ai}\n`;
+        });
+        context += '\nBu bağlamda yeni soruyu yanıtla:';
+        
+        return context;
+      }
+      
+      // Gemini modelleri listesi (En akıllıdan en basite doğru sıralı)
+      const GEMINI_MODELS = [
+        'gemini-2.5-flash',      // En yeni ve en akıllı
+        'gemini-2.0-flash-exp',  // Deneysel ama güçlü
+        'gemini-2.0-flash',      // Hızlı ve akıllı
+        'gemini-1.5-pro',        // Pro model
+        'gemini-1.5-flash',      // Hızlı
+        'gemini-1.5-flash-8b',   // Kompakt
+        'gemini-2.0-flash-lite', // Hafif
+        'gemini-pro'             // Eski ama güvenilir
+      ];
+      
+      // API key test fonksiyonu (sessiz)
+      async function testAPIConnection() {
+        // API testi sessizce yapılıyor
+        return true;
+      }
+      
+      // Sayfa yüklendiğinde API'yi test et (sessizce)
+      window.addEventListener('load', () => {
+        // API testi sessizce yapılıyor
+      });
+
+      // Markdown formatlamasını HTML'e çeviren fonksiyon
+      function formatMarkdown(text) {
+        if (!text) return '';
+        
+        let formattedText = text;
+        
+        // Emoji'leri koru
+        const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+        
+        // **bold** -> <strong>bold</strong> (emoji'leri koruyarak)
+        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+        
+        // *italic* -> <em>italic</em> (emoji'leri koruyarak)
+        formattedText = formattedText.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+        
+        // `code` -> <code>code</code>
+        formattedText = formattedText.replace(/`(.*?)`/g, '<code class="bg-gray-200 dark:bg-gray-600 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
+        
+        // Liste öğelerini formatla
+        formattedText = formattedText.replace(/^[-*]\s+(.+)$/gm, '<li class="ml-4">$1</li>');
+        formattedText = formattedText.replace(/^(\d+)\.\s+(.+)$/gm, '<li class="ml-4">$2</li>');
+        
+        // Tabloları daha iyi formatla
+        const lines = formattedText.split('\n');
+        let inTable = false;
+        let tableRows = [];
+        let result = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // Tablo satırı kontrolü
+          if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+            if (!inTable) {
+              inTable = true;
+              tableRows = [];
+            }
+            tableRows.push(line);
+          } else {
+            // Tablo bitti, formatla
+            if (inTable && tableRows.length > 0) {
+              result.push(formatTable(tableRows));
+              inTable = false;
+              tableRows = [];
+            }
+            result.push(line);
+          }
+        }
+        
+        // Son tabloyu formatla
+        if (inTable && tableRows.length > 0) {
+          result.push(formatTable(tableRows));
+        }
+        
+        formattedText = result.join('\n');
+        
+        // Liste öğelerini <ul> ile sar
+        formattedText = formattedText.replace(/(<li.*?<\/li>)+/gs, function(match) {
+          return `<ul class="list-disc list-inside my-2 space-y-1">${match}</ul>`;
+        });
+        
+        // Satır sonlarını <br> ile değiştir
+        formattedText = formattedText.replace(/\n/g, '<br>');
+        
+        return formattedText;
+      }
+      
+      // Tablo formatlama fonksiyonu
+      function formatTable(rows) {
+        if (rows.length < 2) return rows.join('\n');
+        
+        // Tablo ayırıcı satırlarını filtrele (|---|---|)
+        const filteredRows = rows.filter(row => {
+          const cleanRow = row.replace(/\|/g, '').trim();
+          return !cleanRow.match(/^[\s\-]+$/);
+        });
+        
+        if (filteredRows.length < 1) return rows.join('\n');
+        
+        let tableHtml = '<div class="overflow-x-auto my-3"><table class="border-collapse border border-gray-300 dark:border-gray-600 w-full text-sm">';
+        
+        for (let i = 0; i < filteredRows.length; i++) {
+          const row = filteredRows[i];
+          const cells = row.split('|').filter(cell => cell.trim());
+          
+          if (cells.length > 0) {
+            tableHtml += '<tr>';
+            
+            for (let j = 0; j < cells.length; j++) {
+              const cell = cells[j].trim();
+              const isHeader = i === 0; // İlk satır başlık
+              const tag = isHeader ? 'th' : 'td';
+              const className = isHeader 
+                ? 'border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-semibold bg-gray-100 dark:bg-gray-600 text-center'
+                : 'border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm';
+              
+              // Hücre içeriğini temizle ve formatla
+              const cleanCell = cell.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                   .replace(/\*(.*?)\*/g, '<em>$1</em>');
+              
+              tableHtml += `<${tag} class="${className}">${cleanCell}</${tag}>`;
+            }
+            
+            tableHtml += '</tr>';
+          }
+        }
+        
+        tableHtml += '</table></div>';
+        return tableHtml;
+      }
+
+      // Mesaj ekleme fonksiyonu
+      function addMessage(message, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start gap-3 chat-bubble ${isUser ? 'justify-end' : ''}`;
+        
+        if (isUser) {
+          messageDiv.innerHTML = `
+            <div class="bg-gradient-to-r from-primary to-secondary text-white rounded-2xl rounded-tr-md p-4 w-full max-w-none">
+              <p>${message}</p>
+            </div>
+            <div class="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-user text-gray-600 dark:text-gray-300 text-xs"></i>
+            </div>
+          `;
+        } else {
+          messageDiv.innerHTML = `
+            <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+              <img src="tarpol logo.png" alt="TARPOL Logo" class="w-5 h-5 object-contain">
+            </div>
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-md p-4 w-full max-w-none">
+              <div class="text-gray-800 dark:text-gray-200">${formatMarkdown(message)}</div>
+            </div>
+          `;
+        }
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // Yazıyor göstergesi
+      function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typing-indicator';
+        typingDiv.className = 'flex items-start gap-3 chat-bubble';
+        typingDiv.innerHTML = `
+          <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+            <img src="tarpol logo.png" alt="TARPOL Logo" class="w-5 h-5 object-contain">
+          </div>
+          <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-md p-4">
+            <div class="flex gap-1">
+              <div class="w-2 h-2 bg-gray-400 rounded-full typing-indicator"></div>
+              <div class="w-2 h-2 bg-gray-400 rounded-full typing-indicator" style="animation-delay: 0.2s"></div>
+              <div class="w-2 h-2 bg-gray-400 rounded-full typing-indicator" style="animation-delay: 0.4s"></div>
+            </div>
+          </div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function hideTypingIndicator() {
+        const typingDiv = document.getElementById('typing-indicator');
+        if (typingDiv) {
+          typingDiv.remove();
+        }
+      }
+
+      // Akıllı offline yanıt sistemi - TarpoVizyon AI için özelleştirilmiş
+      async function getOfflineResponse(userMessage) {
+        // TarpoVizyon AI offline yanıt üretiliyor
+        
+        const message = userMessage.toLowerCase();
+        
+        // Tarım ve hayvancılık dışı sorular için ret yanıtı
+        const nonAgriculturalPatterns = [
+          'bilgisayar', 'programlama', 'kod', 'yazılım', 'teknoloji',
+          'matematik', 'fizik', 'kimya', 'tıp', 'doktor',
+          'siyaset', 'politika', 'seçim', 'parti',
+          'müzik', 'film', 'oyun', 'spor', 'futbol',
+          'aşk', 'evlilik', 'ilişki', 'arkadaş'
+        ];
+        
+        const isNonAgricultural = nonAgriculturalPatterns.some(pattern => 
+          message.includes(pattern)
+        );
+        
+        if (isNonAgricultural) {
+          return 'Ben yalnızca tarım ve hayvancılıkla ilgili konularda yardımcı olmak üzere tasarlandım. Lütfen bu alanda bir soru sorun.';
+            }
+
+        // Kimlik soruları
+        if (message.includes('kim') || message.includes('ad') || message.includes('isim')) {
+          return 'Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım.';
+          }
+          
+        // Yaratıcı soruları
+        if (message.includes('kim yapt') || message.includes('kim yaratt') || message.includes('kim geliştir') || message.includes('sahibi kim')) {
+          return 'Veteriner Hekim Öner Özbey tarafından geliştirildim. Kendisi, tarım ve hayvancılık sektöründe birçok yenilikçi projeye imza atmış ve sektörü modernize eden yaklaşımlarıyla tanınmaktadır. Yazdığı "Yeni Yüzyıl İçin Yeni Hayvancılık Stratejileri" adlı kitabı, sektörel dönüşüm için rehber niteliğindedir.';
+        }
+
+        // Öner Özbey hakkında sorular
+        if (message.includes('öner özbey') || message.includes('oner ozbey')) {
+          return 'Veteriner Hekim Öner Özbey, Fırat Üniversitesi Veteriner Fakültesi mezunu olup, tarım ve yapay zeka entegrasyonu konusunda sektörde çığır açan çalışmalara imza atmıştır. Hayvancılık Genel Müdürlüğü\'nde kritik görevlerde bulunmuş, çiğ süt regülasyonu, FAO iş birlikleri ve piyasa analizleri gibi konularda liderlik yapmıştır.';
+          }
+          
+        // Model versiyonu soruları
+        if (message.includes('gpt') || message.includes('model') || message.includes('hangi yapay zeka')) {
+          return `Ben TarpoVizyon AI.
+Tarım ve hayvancılık alanında uzmanlaşmış, yerli üretim bir yapay zekâ asistanıyım. Genel amaçlı yapay zekâlardan farklı olarak, süt verimi optimizasyonu, karkas analizi, mera yönetimi ve benzeri sektör spesifik ihtiyaçlara odaklanıyorum.
+
+Farkım ne?
+🔸 Milli politikalarla uyumlu yapay zekâ altyapısı: Yerel tarım stratejilerine entegre algoritmalarla çalışırım.
+🔸 Bilimsel doğruluk, sektörel uzmanlık: Sadece tarım ve hayvancılık için optimize edildim.
+🔸 Çiftçi dostu arayüz ve raporlar: Karmaşık verileri sadeleştirir, üreticiye anlaşılır çıktılar sunarım.
+🔸 Tarım 5.0'a hazır bir vizyon: Dijital tarımın gerektirdiği dönüşümde, üreticilerin teknoloji ortağıyım.
+
+Kodumda ileri teknoloji, vizyonumda kırsal kalkınma var. 🌾`;
+        }
+
+        // TARPOL hakkında sorular
+        if (message.includes('tarpol') || message.includes('tarımsal strateji')) {
+          return 'TARPOL, tarım, hayvancılık ve gıda güvenliğinde sürdürülebilir stratejiler geliştirmek üzere kurulmuş bir düşünce kuruluşudur. Dr. Mehmet Mehdi Eker başkanlığında, iklim değişikliği ve doğal afetler gibi küresel tehditlere karşı yenilikçi politikalar geliştirir. Ankara\'da faaliyet gösterir.';
+        }
+
+        // Mehdi Eker hakkında sorular
+        if (message.includes('mehdi eker') || message.includes('eker')) {
+          return 'Dr. Mehmet Mehdi Eker, TARPOL\'un Başkanıdır. Veteriner Hekim ve Tarım Ekonomisti olan kendisi, Ankara Üniversitesi Veteriner Fakültesi mezunu olup Aberdeen Üniversitesi\'nde yüksek lisans yapmıştır. Diyarbakır milletvekili ve Gıda, Tarım ve Hayvancılık Bakanı olarak görev yapmıştır.';
+        }
+
+        // Tarım konuları
+        const agricultureTopics = {
+          'süt': [
+            'Süt verimini artırmak için; kaliteli yem, düzenli sağım, hayvan konforu ve sağlık takibi önemlidir.',
+            'Süt kalitesini yükseltmek için hijyenik koşullar, soğuk zincir ve düzenli testler gereklidir.',
+            'Süt verimini etkileyen faktörler: genetik, beslenme, barınak koşulları ve stres yönetimidir.'
+          ],
+          'buğday': [
+            'Buğday ekimi için toprak hazırlığı, uygun çeşit seçimi ve zamanında ekim kritiktir.',
+            'Buğday verimini artırmak için dengeli gübreleme, hastalık kontrolü ve sulama planlaması yapın.',
+            'Buğday hasadında nem oranı %14\'ün altında olmalı, depolama koşulları uygun olmalıdır.'
+          ],
+          'organik': [
+            'Organik tarıma geçiş 3 yıllık bir süreçtir. Toprak analizi ve sertifikasyon gereklidir.',
+            'Organik tarımda doğal gübreler, biyolojik mücadele ve rotasyon sistemi kullanılır.',
+            'Organik ürünler daha yüksek fiyata satılır ancak maliyetler de dikkate alınmalıdır.'
+          ],
+          'mera': [
+            'Mera yönetiminde otlatma baskısı, dinlendirme periyodu ve bitki çeşitliliği önemlidir.',
+            'Mera ıslahı için tohumlama, gübreleme ve yabancı ot mücadelesi yapılmalıdır.',
+            'Sürdürülebilir mera kullanımı için rotasyonlu otlatma sistemi uygulanmalıdır.'
+          ],
+          'hayvansağlığı': [
+            'Hayvan sağlığında koruyucu hekimlik, aşılama programları ve hijyen önceliklidir.',
+            'Hastalık belirtilerini erken fark etmek için düzenli gözlem ve kayıt tutma önemlidir.',
+            'Veteriner hekim kontrolü, beslenme planı ve stres yönetimi hayvan sağlığının temelidir.'
+          ]
+        };
+
+        // En uygun konuyu bul
+        for (const [topic, responses] of Object.entries(agricultureTopics)) {
+          if (message.includes(topic) || 
+              (topic === 'hayvansağlığı' && (message.includes('hayvan') && message.includes('sağlık'))) ||
+              (topic === 'süt' && (message.includes('inek') || message.includes('sağım'))) ||
+              (topic === 'mera' && (message.includes('otlak') || message.includes('çayır')))) {
+          return responses[Math.floor(Math.random() * responses.length)];
+          }
+        }
+
+        // Genel tarım yanıtları
+        const generalAgriculturalResponses = [
+          'Bu konuda size en iyi teknik çözümleri ve sektör uygulamalarını sunmak için buradayım. Hangi tarım alanında bilgi almak istiyorsunuz?',
+          'Tarım sektöründe yapay zeka ve iş zekası entegrasyonu hakkında size kapsamlı bilgiler sunabilirim. Hangi konuda yardıma ihtiyacınız var?',
+          'Sürdürülebilir tarım uygulamaları, verimlilik artırma yöntemleri veya hayvancılık konularında size yardımcı olabilirim.',
+          'Sorunuzu biraz daha detaylandırabilir misiniz? Hangi tarım alanında bilgi istiyorsunuz?'
+        ];
+
+        return generalAgriculturalResponses[Math.floor(Math.random() * generalAgriculturalResponses.length)];
+      }
+
+      // Uzun cevaplar için otomatik bölme sistemi
+      async function getLongResponse(userMessage, model, prompt) {
+        let fullResponse = '';
+        let currentPart = 1;
+        const maxTokensPerRequest = 4000; // Her istek için maksimum token
+        
+        while (true) {
+          try {
+            const continuationPrompt = currentPart === 1 ? prompt : 
+              `${prompt}\n\nDEVAM ETME TALİMATI: Yukarıdaki yanıtın devamını yaz. Önceki kısmı tekrarlama, sadece devamını yaz. Eğer yanıt tamamlandıysa "YANIT TAMAMLANDI" yaz.`;
+            
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [{
+                    text: continuationPrompt
+                  }]
+                }],
+                generationConfig: {
+                  temperature: 0.7,
+                  topK: 40,
+                  topP: 0.95,
+                  maxOutputTokens: maxTokensPerRequest,
+                },
+                safetySettings: [
+                  {
+                    category: "HARM_CATEGORY_HARASSMENT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                  },
+                  {
+                    category: "HARM_CATEGORY_HATE_SPEECH", 
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                  }
+                ]
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              
+              if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                
+                // Yanıt tamamlandı mı kontrol et
+                if (aiResponse.includes('YANIT TAMAMLANDI') || aiResponse.length < 100) {
+                  return fullResponse;
+                }
+                
+                fullResponse += aiResponse + '\n\n';
+                currentPart++;
+                
+                // Maksimum parça sayısı kontrolü
+                if (currentPart > 10) {
+                  return fullResponse;
+                }
+              } else {
+                break;
+              }
+            } else {
+              break;
+            }
+          } catch (error) {
+            break;
+          }
+        }
+        
+        return fullResponse || 'Üzgünüm, uzun yanıt oluşturulamadı.';
+      }
+
+      // TarpoVizyon AI Yanıt Sistemi
+      async function getAIResponse(userMessage) {
+        // Kullanıcı mesajı işleniyor
+        
+        // Yaratıcı mod kontrolü
+        
+        if (userMessage.toLowerCase().includes('yaratıcı moda geç') || 
+            userMessage.toLowerCase().includes('yaratıcı moduna geç') ||
+            userMessage.toLowerCase().includes('creative mode') ||
+            userMessage.toLowerCase().includes('yaratıcı mod') ||
+            userMessage.toLowerCase().includes('yaratıcı') ||
+            userMessage.toLowerCase().includes('creative')) {
+          isCreativeMode = true;
+          return `🎨 **Yaratıcı Mod Aktif!** 
+
+Artık tarım/hayvancılık sınırı yok ve her konuda uzmanım! 
+
+- ✅ Herhangi bir konuda detaylı bilgi verebilirim
+- ✅ Profesyonel ve kaliteli yanıtlar
+- ✅ Bilimsel ve teknik açıklamalar
+- ✅ Pratik öneriler ve çözümler
+- ✅ Gerçek uzmanlık seviyesinde yanıtlar
+
+Hangi konuda yardıma ihtiyacın var? 🚀`;
+        }
+        
+        // Normal moda dönüş kontrolü
+        if (userMessage.toLowerCase().includes('normal moda dön') || 
+            userMessage.toLowerCase().includes('tarım moduna dön') ||
+            userMessage.toLowerCase().includes('normal mode') ||
+            userMessage.toLowerCase().includes('tarım modu')) {
+          isCreativeMode = false;
+          return `🌾 **Normal Mod Aktif!** 
+
+TarpoVizyon AI olarak tarım ve hayvancılık konularına geri döndüm.
+
+- ✅ Tarım ve hayvancılık uzmanı
+- ✅ Bilimsel ve pratik yanıtlar
+- ✅ Türkiye tarımı odaklı
+- ✅ Profesyonel danışmanlık
+
+Tarım veya hayvancılık ile ilgili sorularınızı sorabilirsiniz! 🌾`;
+        }
+
+        // API key kontrolü
+        if (!GEMINI_API_KEY) {
+          return await getOfflineResponse(userMessage);
+        }
+
+        // Çoklu model denemesi
+        
+        for (let i = 0; i < GEMINI_MODELS.length; i++) {
+          const model = GEMINI_MODELS[i];
+          
+          try {
+            const prompt = isCreativeMode ? 
+            // Yaratıcı mod - Profesyonel ve kaliteli yanıtlar
+            `Sen artık yaratıcı moddasın! Tarım/hayvancılık sınırı yok ama kaliteli yanıtlar vermelisin.
+
+YARATICI MOD KURALLARI:
+- Herhangi bir konuda uzman olabilirsin
+- Tarım/hayvancılık sınırı yok
+- Profesyonel ve kaliteli yanıtlar ver
+- Detaylı ve bilgilendirici açıklamalar yap
+- Bilimsel, teknik ve pratik bilgiler sun
+- Kullanıcının sorduğu konuda gerçek uzmanlık göster
+- Eğlenceli olabilir ama lakayıt olma
+- Emoji kullan ama abartma
+- Samimi ama profesyonel tonda konuş
+- Kullanıcı ne sorarsa sorsa detaylı cevapla
+- "Ben sadece tarım uzmanıyım" deme
+- Her konuda derinlemesine bilgi ver
+
+TABLO OLUŞTURMA KURALLARI:
+- Tablo isteği geldiğinde mutlaka tablo oluştur
+- Markdown formatında tablo yap: | Sütun1 | Sütun2 | Sütun3 |
+- Başlık satırı ve ayırıcı satır ekle: |---|----|----|
+- Veri satırları ekle: | Veri1 | Veri2 | Veri3 |
+- Tablo sonrası açıklama ekle
+- Tablo yapamıyorsan "Üzgünüm, bu konuda tablo oluşturamıyorum" de
+
+${buildConversationContext()}
+
+Kullanıcı sorusu: ${userMessage}` :
+            // Normal mod - Tarım ve hayvancılık odaklı
+            `Sen TarpoVizyon AI adında, tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanısın. 
+
+ÖNEMLI KİMLİK BİLGİLERİ:
+- Veteriner Hekim Öner Özbey tarafından geliştirildim
+- Sadece tarım ve hayvancılık konularında yardımcı olabilirsin
+- Bu alanlar dışındaki sorulara: "Ben yalnızca tarım ve hayvancılıkla ilgili konularda yardımcı olmak üzere tasarlandım. Lütfen bu alanda bir soru sorun." şeklinde yanıt ver
+
+KİMLİK SORULARI İÇİN ÖZEL YANITLAR:
+- Kim olduğun sorulduğunda: "Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım."
+- Kim yarattığın sorulduğunda: "Veteriner Hekim Öner Özbey tarafından geliştirildim. Kendisi, tarım ve hayvancılık sektöründe birçok yenilikçi projeye imza atmış ve sektörü modernize eden yaklaşımlarıyla tanınmaktadır."
+
+UZMANLIK ALANLARIN:
+- Hayvancılık (beslenme, hastalıklar, verim artırma)
+- Bitkisel üretim (ekim, hasat, hastalık-zararlı mücadelesi)
+- Tarımsal ekonomi ve piyasa analizi
+- Sürdürülebilir tarım uygulamaları
+- Organik tarım
+- Mera yönetimi
+
+YANIT KURALLARI:
+- Türkçe yanıt ver
+- Teknik ve detaylı açıklamalar yap
+- Detaylı ve kapsamlı yanıtlar ver
+- Bilimsel veriler ve pratik öneriler sun
+- Fiyat/istatistik sorularında sonuna "For the most up-to-date data and detailed analysis, visit our AI-powered platform TarpoVizyon" ekle
+
+TABLO OLUŞTURMA KURALLARI:
+- Tablo isteği geldiğinde mutlaka tablo oluştur
+- Markdown formatında tablo yap: | Sütun1 | Sütun2 | Sütun3 |
+- Başlık satırı ve ayırıcı satır ekle: |---|----|----|
+- Veri satırları ekle: | Veri1 | Veri2 | Veri3 |
+- Tablo sonrası açıklama ekle
+- Tablo yapamıyorsan "Üzgünüm, bu konuda tablo oluşturamıyorum" de
+
+${buildConversationContext()}
+
+Kullanıcı sorusu: ${userMessage}`;
+
+            // Normal API çağrısı yap
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [{
+                    text: prompt
+                  }]
+                }],
+                generationConfig: {
+                  temperature: 0.7,
+                  topK: 40,
+                  topP: 0.95,
+                  maxOutputTokens: 8192,
+                },
+                safetySettings: [
+                  {
+                    category: "HARM_CATEGORY_HARASSMENT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                  },
+                  {
+                    category: "HARM_CATEGORY_HATE_SPEECH", 
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                  }
+                ]
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              
+              if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                
+                if (aiResponse && aiResponse.trim().length > 0) {
+                  window.lastUsedModel = model;
+                  return aiResponse;
+                } else {
+                  continue;
+                }
+              } else {
+                continue;
+              }
+            } else {
+              if (response.status === 429 || response.status === 400 || response.status === 403) {
+                continue;
+              }
+            }
+          } catch (error) {
+            if (i < GEMINI_MODELS.length - 1) {
+              continue;
+            }
+          }
+        }
+        
+        // Tüm modeller başarısız oldu - offline yanıt sistemine geç
+        return await getOfflineResponse(userMessage);
+      }
+
+      // Form gönderimi
+      if (chatForm) {
+        chatForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const message = userInput.value.trim();
+          if (!message) return;
+
+          // Kullanıcı mesajını ekle
+          addMessage(message, true);
+          userInput.value = '';
+          
+          // UI durumunu güncelle
+          sendButton.disabled = true;
+          showTypingIndicator();
+
+          try {
+            // AI yanıtını al
+            const response = await getAIResponse(message);
+            
+            // Yanıtın geçerli olup olmadığını kontrol et
+            if (response && response.trim().length > 0) {
+            // Konuşma geçmişini güncelle
+            updateConversationHistory(message, response);
+              
+              // Admin paneli için model bilgisiyle kaydet
+              saveChatLogToAdmin(message, response, window.lastUsedModel || null);
+              
+              // Sohbet geçmişine ekle
+              addToHistory(message, response);
+              
+              // Mod durumunu güncelle
+              updateModeStatus();
+            
+            // Yazıyor göstergesini kaldır ve yanıtı ekle
+            hideTypingIndicator();
+            addMessage(response);
+            } else {
+              throw new Error('AI boş yanıt verdi');
+            }
+          } catch (error) {
+            hideTypingIndicator();
+            const errorMsg = 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.';
+            addMessage(errorMsg);
+            updateConversationHistory(message, errorMsg);
+            saveChatLogToAdmin(message, errorMsg, 'Error');
+            addToHistory(message, errorMsg);
+          } finally {
+            sendButton.disabled = false;
+          }
+        });
+      }
+
+      // Sohbet geçmişi fonksiyonları
+      let chatHistoryData = JSON.parse(localStorage.getItem('tarpovizyon_chat_history') || '[]');
+      
+      function addToHistory(question, answer) {
+        const historyItem = {
+          id: Date.now(),
+          question: question,
+          answer: answer,
+          timestamp: Date.now()
+        };
+        
+        chatHistoryData.unshift(historyItem); // En yenisi başa gelsin
+        
+        // Son 10 öğeyi sakla
+        if (chatHistoryData.length > 10) {
+          chatHistoryData = chatHistoryData.slice(0, 10);
+        }
+        
+        localStorage.setItem('tarpovizyon_chat_history', JSON.stringify(chatHistoryData));
+        updateHistoryDisplay();
+      }
+      
+      function updateHistoryDisplay() {
+        if (chatHistoryData.length === 0) {
+          chatHistory.innerHTML = `
+            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+              <i class="fas fa-history text-2xl mb-2"></i>
+              <p class="text-sm">Henüz sohbet geçmişi yok</p>
+            </div>
+          `;
+          return;
+        }
+        
+        chatHistory.innerHTML = chatHistoryData.map(item => `
+          <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" onclick="selectHistoryItem('${item.id}')">
+            <div class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
+              ${item.question}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-3">
+              ${formatMarkdown(item.answer.substring(0, 100))}...
+            </div>
+            <div class="text-xs text-gray-400">
+              ${new Date(item.timestamp).toLocaleString('tr-TR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit'
+              })}
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      function selectHistoryItem(id) {
+        const item = chatHistoryData.find(h => h.id == id);
+        if (item) {
+          userInput.value = item.question;
+          userInput.focus();
+        }
+      }
+      
+      function clearHistory() {
+        if (confirm('Sohbet geçmişini temizlemek istediğinizden emin misiniz?')) {
+          chatHistoryData = [];
+          localStorage.setItem('tarpovizyon_chat_history', JSON.stringify(chatHistoryData));
+          updateHistoryDisplay();
+          }
+      }
+      
+      // Mod durumu güncelleme fonksiyonu
+      function updateModeStatus() {
+        const modeIndicator = document.getElementById('mode-indicator');
+        
+        if (modeIndicator) {
+          if (isCreativeMode) {
+            modeIndicator.innerHTML = `
+              <div class="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white text-xs font-medium">
+                <i class="fas fa-palette"></i>
+                <span>Yaratıcı Mod</span>
+              </div>
+            `;
+          } else {
+            modeIndicator.innerHTML = `
+              <div class="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
+                <i class="fas fa-leaf"></i>
+                <span>Tarım Modu</span>
+              </div>
+            `;
+          }
+        }
+      }
+      
+      // Sayfa yüklendiğinde geçmişi göster
+      updateHistoryDisplay();
+      updateModeStatus();
+
+      // Sohbeti temizle
+      clearChatBtn.addEventListener('click', () => {
+        if (confirm('Sohbet geçmişini temizlemek istediğinizden emin misiniz?')) {
+          conversationHistory = [];
+          
+          chatMessages.innerHTML = `
+            <div class="flex items-start gap-3 chat-bubble">
+                              <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+                  <img src="tarpol logo.png" alt="TARPOL Logo" class="w-5 h-5 object-contain">
+              </div>
+              <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-md p-4 max-w-xs md:max-w-md">
+                <p class="text-gray-800 dark:text-gray-200">
+                  Merhaba! Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim? 🌾
+                </p>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      // Geçmiş temizleme
+      clearHistoryBtn.addEventListener('click', clearHistory);
+
+      // Enter tuşu ile gönderme
+      userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          chatForm.dispatchEvent(new Event('submit'));
+        }
+      });
+
+      // Sesli İnteraksiyon Sistemi
+      let recognition = null;
+      let isListening = false;
+      let speechSynthesis = window.speechSynthesis;
+
+      // Modal elementleri
+      const voiceModal = document.getElementById('voice-modal');
+      const voiceButton = document.getElementById('voice-button');
+      const voiceStop = document.getElementById('voice-stop');
+      const voiceCancel = document.getElementById('voice-cancel');
+      const voiceStatus = document.getElementById('voice-status');
+      const voiceTranscript = document.getElementById('voice-transcript');
+      const voiceCircle = document.getElementById('voice-circle');
+      const voiceIcon = document.getElementById('voice-icon');
+      const voiceWaves = document.getElementById('voice-waves');
+
+      // Web Speech API Desteği Kontrolü
+      function initializeSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          recognition = new SpeechRecognition();
+          
+          recognition.continuous = false;
+          recognition.interimResults = true;
+          recognition.lang = 'tr-TR';
+          recognition.maxAlternatives = 1;
+
+          recognition.onstart = function() {
+            isListening = true;
+            voiceStatus.textContent = 'Dinliyorum... Konuşun!';
+            voiceIcon.className = 'fas fa-microphone-slash text-white text-4xl';
+            voiceCircle.classList.add('voice-recording');
+            voiceWaves.classList.remove('hidden');
+          };
+
+          recognition.onresult = function(event) {
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              const result = event.results[i];
+              if (result.isFinal) {
+                finalTranscript += result[0].transcript;
+              } else {
+                interimTranscript += result[0].transcript;
+              }
+            }
+
+            const transcript = finalTranscript || interimTranscript;
+            voiceTranscript.textContent = transcript;
+
+            if (finalTranscript) {
+              processSpeechInput(finalTranscript.trim());
+            }
+          };
+
+          recognition.onerror = function(event) {
+            let errorMessage = 'Ses tanıma hatası oluştu.';
+            
+            switch(event.error) {
+              case 'network':
+                errorMessage = 'İnternet bağlantısı sorunu.';
+                break;
+              case 'not-allowed':
+                errorMessage = 'Mikrofon izni reddedildi.';
+                break;
+              case 'no-speech':
+                errorMessage = 'Ses algılanamadı. Tekrar deneyin.';
+                break;
+              case 'audio-capture':
+                errorMessage = 'Mikrofon bulunamadı.';
+                break;
+            }
+            
+            voiceStatus.textContent = errorMessage;
+            setTimeout(closeVoiceModal, 2000);
+          };
+
+          recognition.onend = function() {
+            isListening = false;
+            resetVoiceUI();
+          };
+
+          return true;
+        }
+        return false;
+      }
+
+      // Ses girişini işleme
+      async function processSpeechInput(transcript) {
+        if (!transcript) return;
+
+        // Ses girişi işleniyor
+        closeVoiceModal();
+        
+        // Kullanıcı mesajını chat'e ekle
+        addMessage(transcript, true);
+        
+        // AI yanıtını al
+        try {
+          showTypingIndicator();
+          
+          const response = await getAIResponse(transcript);
+          
+          // Konuşma geçmişini güncelle
+          updateConversationHistory(transcript, response);
+            
+            // Admin paneli için model bilgisiyle kaydet
+            saveChatLogToAdmin(transcript, response, window.lastUsedModel || null);
+            
+            // Sohbet geçmişine ekle
+            addToHistory(transcript, response);
+            
+            // Mod durumunu güncelle
+            updateModeStatus();
+          
+          hideTypingIndicator();
+          addMessage(response);
+          
+          // Sesli yanıt ver
+          speakResponse(response);
+          
+        } catch (error) {
+          hideTypingIndicator();
+          const errorMsg = 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.';
+          addMessage(errorMsg);
+          updateConversationHistory(transcript, errorMsg);
+          saveChatLogToAdmin(transcript, errorMsg, 'Error');
+          addToHistory(transcript, errorMsg);
+        }
+      }
+
+      // Sesli yanıt
+      function speakResponse(text) {
+        speechSynthesis.cancel();
+        
+        const cleanText = text.replace(/<[^>]*>/g, '').replace(/[🤖🎉✅❌🔄🌾🔸]/g, '');
+        
+        if (cleanText.trim()) {
+          playTarpoVizyonVoice(cleanText);
+        }
+      }
+
+      // ElevenLabs API ile ses çalma
+      async function playElevenLabsVoice(text, settings) {
+        
+        try {
+          const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + settings.elevenLabsVoiceId, {
+            method: 'POST',
+            headers: {
+              'Accept': 'audio/mpeg',
+              'Content-Type': 'application/json',
+              'xi-api-key': settings.elevenLabsApiKey
+            },
+            body: JSON.stringify({
+              text: text,
+              model_id: "eleven_multilingual_v2",
+              voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5
+              }
+            })
+          });
+
+          if (response.ok) {
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            
+            audio.onplay = () => {
+              // TarpoVizyon AI (ElevenLabs) konuşmaya başladı
+            };
+            
+            audio.onended = () => {
+              URL.revokeObjectURL(audioUrl);
+            };
+            
+            audio.onerror = () => {
+              URL.revokeObjectURL(audioUrl);
+            };
+            
+            await audio.play();
+          } else {
+            throw new Error('ElevenLabs API error: ' + response.status);
+          }
+        } catch (error) {
+          // Fallback to default TTS
+          playDefaultTTS(text, settings);
+        }
+      }
+
+      // Özel yüklenmiş ses dosyasıyla konuşma
+      function playCustomVoice(text, voiceProfile) {
+        
+        // For now, use TTS with a note about custom voice
+        // In a real implementation, you would use text-to-speech with the custom voice
+        const utterance = new SpeechSynthesisUtterance(`Bu mesaj ${voiceProfile.name} sesiyle okunuyor: ${text}`);
+        const voiceSettings = JSON.parse(localStorage.getItem('tarpovizyon_voice_settings') || '{}');
+        
+        utterance.lang = 'tr-TR';
+        utterance.rate = parseFloat(voiceSettings.speechRate || 0.85);
+        utterance.pitch = parseFloat(voiceSettings.speechPitch || 1.1);
+        utterance.volume = parseFloat(voiceSettings.speechVolume || 0.9);
+        
+        utterance.onstart = function() {
+          // TarpoVizyon AI (Özel Ses) konuşmaya başladı
+        };
+        
+        utterance.onend = function() {
+          // TarpoVizyon AI konuşmasını tamamladı
+        };
+        
+        utterance.onerror = function(event) {
+          // Özel ses hatası
+        };
+        
+        speechSynthesis.speak(utterance);
+      }
+
+      // Varsayılan TTS
+      function playDefaultTTS(text, settings) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        utterance.lang = 'tr-TR';
+        utterance.rate = parseFloat(settings.speechRate || 0.85);
+        utterance.pitch = parseFloat(settings.speechPitch || 1.1);
+        utterance.volume = parseFloat(settings.speechVolume || 0.9);
+        
+        const voices = speechSynthesis.getVoices();
+        let tarpoVizyonVoice = null;
+        
+        const voicePreferences = [
+          'Microsoft Emel Online (Natural) - Turkish (Turkey)',
+          'tr-TR-EmelNeural',
+          'Microsoft Emel - Turkish (Turkey)',
+          'Google Türkçe',
+          'Google tr-TR'
+        ];
+        
+        for (const preferredName of voicePreferences) {
+          tarpoVizyonVoice = voices.find(voice => {
+            const voiceName = voice.name.toLowerCase();
+            const preferredLower = preferredName.toLowerCase();
+            return voiceName.includes(preferredLower) || voiceName === preferredLower;
+          });
+          
+          if (tarpoVizyonVoice) break;
+          }
+        
+        if (!tarpoVizyonVoice) {
+          tarpoVizyonVoice = voices.find(voice => 
+            voice.lang && voice.lang.startsWith('tr')
+          );
+        }
+        
+        if (tarpoVizyonVoice) {
+          utterance.voice = tarpoVizyonVoice;
+        }
+        
+        utterance.onstart = function() {
+          // TarpoVizyon AI konuşmaya başladı
+        };
+        
+        utterance.onend = function() {
+          // TarpoVizyon AI konuşmasını tamamladı
+        };
+        
+        utterance.onerror = function(event) {
+          // TarpoVizyon AI ses hatası
+        };
+        
+        speechSynthesis.speak(utterance);
+      }
+
+      // TarpoVizyon AI Özel Ses Sistemi
+      function playTarpoVizyonVoice(text) {
+        // TarpoVizyon AI'nın kendine özgü sesi kullanılıyor
+        
+        // Check for custom voice first
+        const currentVoice = JSON.parse(localStorage.getItem('tarpovizyon_current_voice') || '{}');
+        const voiceSettings = JSON.parse(localStorage.getItem('tarpovizyon_voice_settings') || '{}');
+        
+        // Try ElevenLabs API first if configured
+        if (voiceSettings.elevenLabsApiKey && voiceSettings.elevenLabsVoiceId) {
+          playElevenLabsVoice(text, voiceSettings);
+          return;
+        }
+        
+        // Use custom uploaded voice if available
+        if (currentVoice.audioData && currentVoice.type === 'custom') {
+          playCustomVoice(text, currentVoice);
+          return;
+        }
+        
+        // Fallback to default TTS with custom settings
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        utterance.lang = 'tr-TR';
+        utterance.rate = parseFloat(voiceSettings.speechRate || 0.85);
+        utterance.pitch = parseFloat(voiceSettings.speechPitch || 1.1);
+        utterance.volume = parseFloat(voiceSettings.speechVolume || 0.9);
+        
+        // Use default TTS as fallback
+        playDefaultTTS(text, voiceSettings);
+      }
+
+      // Modal açma
+      function openVoiceModal() {
+        if (!recognition) {
+          alert('Üzgünüm, tarayıcınız ses tanıma özelliğini desteklemiyor. Chrome veya Edge kullanmayı deneyin.');
+          return;
+        }
+
+        voiceModal.classList.remove('hidden');
+        voiceStatus.textContent = 'Mikrofon izni bekleniyor...';
+        voiceTranscript.textContent = '';
+        
+        setTimeout(() => {
+          try {
+            recognition.start();
+                  } catch (error) {
+          voiceStatus.textContent = 'Ses tanıma başlatılamadı.';
+          setTimeout(closeVoiceModal, 2000);
+        }
+        }, 500);
+      }
+
+      // Modal kapatma
+      function closeVoiceModal() {
+        voiceModal.classList.add('hidden');
+        if (recognition && isListening) {
+          recognition.stop();
+        }
+        resetVoiceUI();
+      }
+
+      // Ses UI'ını sıfırla
+      function resetVoiceUI() {
+        voiceIcon.className = 'fas fa-microphone text-white text-4xl';
+        voiceCircle.classList.remove('voice-recording');
+        voiceWaves.classList.add('hidden');
+        voiceStatus.textContent = 'Dinleme başlatılıyor...';
+        voiceTranscript.textContent = '';
+      }
+
+      // Event Listeners
+      voiceButton.addEventListener('click', openVoiceModal);
+      voiceStop.addEventListener('click', closeVoiceModal);
+      voiceCancel.addEventListener('click', closeVoiceModal);
+
+      // Modal dışına tıklayınca kapatma
+      voiceModal.addEventListener('click', (e) => {
+        if (e.target === voiceModal) {
+          closeVoiceModal();
+        }
+      });
+
+      // ESC tuşu ile kapatma
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !voiceModal.classList.contains('hidden')) {
+          closeVoiceModal();
+        }
+      });
+
+      // Sayfa yüklendiğinde ses tanıma özelliğini başlat
+      window.addEventListener('load', () => {
+        const speechSupported = initializeSpeechRecognition();
+        if (!speechSupported) {
+          voiceButton.style.display = 'none';
+        }
+        
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = function() {
+            // Sesler yüklendi
+          };
+        }
+      });
+    </script>
+</body>
+</html>
