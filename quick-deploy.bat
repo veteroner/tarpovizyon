@@ -10,10 +10,10 @@ if exist manifest.json del manifest.json
 git add .
 git commit -m "Site güncellendi - %date% %time:~0,5%"
 
-:: Remote varsa push yap
+:: Remote varsa push yap (main branch kullan)
 git remote -v | findstr origin >nul
 if not errorlevel 1 (
-    git push origin master
+    git push origin main
     echo ✅ Netlify otomatik deploy edecek!
     echo 🌐 Site: https://tarpovizyon.netlify.app
 ) else (
