@@ -2,223 +2,72 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TarpoVizyon AI</title>
-    <meta name="description" content="Tarım ve hayvancılık AI uzmanı">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Tarım ve Hayvancılık AI Uzmanı</title>
+    <meta name="description" content="TarpoVizyon AI - Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanı">
+    <meta name="keywords" content="tarım, hayvancılık, AI, yapay zeka, veteriner, çiftçilik">
+    <meta name="author" content="Veteriner Hekim Öner Özbey">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="TarpoVizyon AI">
+    <meta property="og:description" content="Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanı">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tarpovizyon-ai.netlify.app">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Safari Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TarpoVizyon AI">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%2348bb78'/><text x='96' y='130' font-size='120' text-anchor='middle' fill='white'>🌾</text></svg>">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#48bb78">
+    <meta name="msapplication-TileImage" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%2348bb78'/><text x='96' y='130' font-size='120' text-anchor='middle' fill='white'>🌾</text></svg>">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#48bb78">
+    
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 100;
-        }
-        
-        .header h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-        }
-        
-        .header .subtitle {
-            font-size: 0.875rem;
-            opacity: 0.9;
-            margin-top: 0.25rem;
-        }
-        
-        /* Main Content */
-        .main-content {
-            height: calc(100vh - 140px);
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
             display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        
-        /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .nav-tab {
-            flex: 1;
-            padding: 1rem 0.5rem;
-            text-align: center;
-            background: none;
-            border: none;
-            font-size: 0.875rem;
-            color: #6b7280;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .nav-tab.active {
-            color: #22c55e;
-            border-bottom-color: #22c55e;
-            font-weight: 600;
-        }
-        
-        .nav-tab:hover {
-            background: #f9fafb;
-        }
-        
-        /* Tab Content */
-        .tab-content {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .tab-content.hidden {
-            display: none;
-        }
-        
-        /* Home Tab */
-        .welcome-section {
-            text-align: center;
-            padding: 2rem 1rem;
-        }
-        
-        .logo-large {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .start-btn {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 1rem 0;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-            transition: all 0.3s;
-            width: 100%;
-            max-width: 300px;
-        }
-        
-        .start-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .feature-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid #f1f3f4;
-        }
-        
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.25rem;
-        }
-        
-        .feature-desc {
-            font-size: 0.75rem;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-        
-        /* Chat Tab */
-        .chat-container {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chat-header {
-            background: white;
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
         
-        .chat-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .new-chat-btn {
-            background: #22c55e;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
             border-radius: 20px;
-            font-size: 0.875rem;
-            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 100%;
+            margin: 1rem;
+            animation: fadeInUp 0.8s ease-out;
         }
         
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            background: #f8f9fa;
-        }
-        
-        .message {
-            margin-bottom: 1rem;
-            animation: slideInUp 0.3s ease;
-        }
-        
-        @keyframes slideInUp {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -226,528 +75,340 @@
             }
         }
         
-        .message.user {
-            text-align: right;
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
         }
         
-        .message.assistant {
-            text-align: left;
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
         }
         
-        .message-bubble {
-            display: inline-block;
-            max-width: 80%;
-            padding: 0.75rem 1rem;
-            border-radius: 18px;
-            font-size: 0.9rem;
-            line-height: 1.4;
+        h1 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
         }
         
-        .message.user .message-bubble {
-            background: #22c55e;
-            color: white;
-        }
-        
-        .message.assistant .message-bubble {
-            background: white;
-            color: #374151;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .chat-input-area {
-            background: white;
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 0.5rem;
-            align-items: flex-end;
-        }
-        
-        .chat-input {
-            flex: 1;
-            border: 1px solid #d1d5db;
-            border-radius: 20px;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            resize: none;
-            max-height: 100px;
-            min-height: 44px;
-        }
-        
-        .send-btn {
-            background: #22c55e;
-            color: white;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        
-        /* History Tab */
-        .history-list {
-            background: white;
-        }
-        
-        .history-item {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f3f4;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .history-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .history-question {
+        .subtitle {
+            color: #4a5568;
+            font-size: 1rem;
+            margin-bottom: 2rem;
             font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
-            line-height: 1.3;
         }
         
-        .history-preview {
-            color: #6b7280;
-            font-size: 0.8rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+            margin-bottom: 2rem;
+            min-width: 200px;
+            cursor: pointer;
         }
         
-        .history-time {
-            color: #9ca3af;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
+        .btn:hover, .btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+            outline: none;
         }
         
-        /* Settings Tab */
-        .settings-section {
-            background: white;
-            margin-bottom: 1rem;
-            border-radius: 12px;
-            overflow: hidden;
+        .btn:active {
+            transform: translateY(0);
         }
         
-        .settings-header {
-            background: #f8f9fa;
-            padding: 1rem;
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.9rem;
+        .features {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
         
-        .settings-item {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f3f4;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .feature {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #48bb78;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .settings-item:last-child {
-            border-bottom: none;
+        .feature:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
         
-        .settings-label {
-            color: #374151;
-            font-size: 0.9rem;
-        }
-        
-        .settings-value {
-            color: #6b7280;
-            font-size: 0.8rem;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #6b7280;
-        }
-        
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .empty-text {
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        
-        /* Loading State */
-        .loading {
+        .feature h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            gap: 0.5rem;
         }
         
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #e5e7eb;
-            border-top: 2px solid #22c55e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .feature p {
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin: 0;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .footer {
+            margin-top: 2rem;
+            color: #718096;
+            font-size: 0.8rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
         }
         
-        /* Safe Area for iOS */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .main-content {
-                height: calc(100vh - 140px - env(safe-area-inset-bottom));
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            border-radius: 2px;
+            animation: loading 3s linear forwards;
+        }
+        
+        @keyframes loading {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                padding: 3rem;
             }
             
-            .chat-input-area {
-                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+            .logo {
+                font-size: 3.5rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                font-size: 1.1rem;
+                padding: 1.2rem 2.5rem;
+            }
+            
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 800px;
+            }
+            
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Touch Friendly */
+        @media (hover: none) and (pointer: coarse) {
+            .btn {
+                min-height: 48px;
+                min-width: 240px;
+            }
+            
+            .feature {
+                padding: 2rem;
+            }
+        }
+        
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: rgba(26, 32, 44, 0.95);
+                color: #e2e8f0;
+            }
+            
+            h1 {
+                color: #f7fafc;
+            }
+            
+            .subtitle {
+                color: #cbd5e0;
+            }
+            
+            .feature {
+                background: #2d3748;
+                border-left-color: #48bb78;
+            }
+            
+            .feature h3 {
+                color: #f7fafc;
+            }
+            
+            .feature p {
+                color: #cbd5e0;
+            }
+            
+            .footer {
+                color: #a0aec0;
+                border-top-color: #4a5568;
+            }
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <h1>🌾 TarpoVizyon AI</h1>
-        <div class="subtitle">Tarım ve Hayvancılık Uzmanı - v2.0</div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" data-tab="home">Ana Sayfa</button>
-            <button class="nav-tab" data-tab="chat">Sohbet</button>
-            <button class="nav-tab" data-tab="history">Geçmiş</button>
-            <button class="nav-tab" data-tab="settings">Ayarlar</button>
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1>TarpoVizyon AI</h1>
+        <p class="subtitle">Tarım ve Hayvancılık AI Uzmanı</p>
+        
+        <a href="ai-nova.html" class="btn" aria-label="AI Asistanına Başla">
+            🚀 AI Asistanına Başla
+        </a>
+        
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
         </div>
-
-        <!-- Home Tab -->
-        <div id="home-tab" class="tab-content">
-            <div class="welcome-section">
-                <div class="logo-large">🌾</div>
-                <h2 style="color: #374151; margin-bottom: 0.5rem;">Hoş Geldiniz</h2>
-                <p style="color: #6b7280; margin-bottom: 2rem;">Tarım ve hayvancılık sorularınız için AI uzmanınız hazır</p>
-                
-                <button class="start-btn" onclick="switchTab('chat')">
-                    🚀 Sohbete Başla
-                </button>
-                
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🌱</div>
-                        <div class="feature-title">Tarım Uzmanlığı</div>
-                        <div class="feature-desc">Bitkisel üretim ve hastalık mücadelesi</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🐄</div>
-                        <div class="feature-title">Hayvancılık</div>
-                        <div class="feature-desc">Beslenme ve sağlık yönetimi</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🎯</div>
-                        <div class="feature-title">Uzman Öneriler</div>
-                        <div class="feature-desc">Kişiselleştirilmiş çözümler</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🎤</div>
-                        <div class="feature-title">Sesli Asistan</div>
-                        <div class="feature-desc">Konuşarak soru sorabilirsiniz</div>
-                    </div>
-                </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="Bitki">🌱</span>
+                    Tarım Uzmanlığı
+                </h3>
+                <p>Bitkisel üretim, hastalık mücadelesi ve sürdürülebilir tarım konularında uzman bilgiler</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="İnek">🐄</span>
+                    Hayvancılık
+                </h3>
+                <p>Beslenme, hastalıklar, verim artırma ve mera yönetimi konularında profesyonel öneriler</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="Hedef">🎯</span>
+                    Yaratıcı Mod
+                </h3>
+                <p>Herhangi bir konuda detaylı bilgi ve profesyonel yanıtlar için yaratıcı mod</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="Mikrofon">🎤</span>
+                    Sesli Asistan
+                </h3>
+                <p>Sesli komutlarla kolay kullanım ve ElevenLabs entegrasyonu ile doğal ses</p>
             </div>
         </div>
-
-        <!-- Chat Tab -->
-        <div id="chat-tab" class="tab-content hidden">
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div class="chat-title">Yeni Sohbet</div>
-                    <button class="new-chat-btn" onclick="clearChat()">Temizle</button>
-                </div>
-                
-                <div class="chat-messages" id="chat-messages">
-                    <div class="empty-state">
-                        <div class="empty-icon">💬</div>
-                        <div class="empty-text">Merhaba! Size nasıl yardımcı olabilirim?<br>Tarım ve hayvancılık konularında sorularınızı sorabilirsiniz.</div>
-                    </div>
-                </div>
-                
-                <div class="chat-input-area">
-                    <textarea class="chat-input" id="chat-input" placeholder="Sorunuzu yazın..." rows="1"></textarea>
-                    <button class="send-btn" onclick="sendMessage()">➤</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- History Tab -->
-        <div id="history-tab" class="tab-content hidden">
-            <div id="history-list" class="history-list">
-                <div class="empty-state">
-                    <div class="empty-icon">📚</div>
-                    <div class="empty-text">Henüz sohbet geçmişiniz bulunmuyor.<br>İlk sohbetinizi başlatın!</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div id="settings-tab" class="tab-content hidden">
-            <div class="settings-section">
-                <div class="settings-header">Genel Ayarlar</div>
-                <div class="settings-item">
-                    <div class="settings-label">Sesli Yanıt</div>
-                    <div class="settings-value">Kapalı</div>
-                </div>
-                <div class="settings-item">
-                    <div class="settings-label">Tema</div>
-                    <div class="settings-value">Açık</div>
-                </div>
-            </div>
-            
-            <div class="settings-section">
-                <div class="settings-header">Hakkında</div>
-                <div class="settings-item">
-                    <div class="settings-label">Versiyon</div>
-                    <div class="settings-value">1.0.0</div>
-                </div>
-                <div class="settings-item">
-                    <div class="settings-label">Model</div>
-                    <div class="settings-value">GPT-4</div>
-                </div>
-            </div>
-            
-            <div class="settings-section">
-                <div class="settings-header">Veri Yönetimi</div>
-                <div class="settings-item" onclick="clearAllData()">
-                    <div class="settings-label" style="color: #dc2626;">Tüm Verileri Temizle</div>
-                </div>
-            </div>
+        
+        <div class="footer">
+            <p>Veteriner Hekim Öner Özbey tarafından geliştirildi</p>
+            <p style="font-size: 0.7rem; margin-top: 0.5rem;">
+                Otomatik yönlendirme: 3 saniye
+            </p>
         </div>
     </div>
-
+    
     <script>
-        // Global Variables
-        let currentTab = 'home';
-        let chatHistory = JSON.parse(localStorage.getItem('tarpovizyon_chat_history') || '[]');
-        let currentChat = [];
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
 
-        // Tab Management
-        function switchTab(tabName) {
-            // Remove active class from all tabs
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button
+            const installBtn = document.createElement('button');
+            installBtn.innerHTML = '📱 Uygulamayı Yükle';
+            installBtn.className = 'btn install-btn';
+            installBtn.style.marginLeft = '1rem';
+            installBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            
+            installBtn.addEventListener('click', async () => {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                installBtn.remove();
             });
             
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            
-            // Activate selected tab
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
-            
-            currentTab = tabName;
-            
-            // Load tab specific data
-            if (tabName === 'history') {
-                loadChatHistory();
-            }
-        }
-
-        // Tab click handlers
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabName = tab.getAttribute('data-tab');
-                switchTab(tabName);
-            });
+            document.querySelector('.container').insertBefore(installBtn, document.querySelector('.loading-bar'));
         });
 
-        // Chat Functions
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
+        // Touch gestures for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+        
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
             
-            if (!message) return;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
             
-            // Add user message
-            addMessage('user', message);
-            input.value = '';
-            
-            // Show loading
-            showLoading();
-            
-            // Simulate AI response
-            setTimeout(() => {
-                hideLoading();
-                const response = generateResponse(message);
-                addMessage('assistant', response);
-                
-                // Save to history
-                saveToHistory(message, response);
-            }, 1000 + Math.random() * 2000);
-        }
-
-        function addMessage(sender, text) {
-            const messagesContainer = document.getElementById('chat-messages');
-            
-            // Remove empty state if exists
-            const emptyState = messagesContainer.querySelector('.empty-state');
-            if (emptyState) {
-                emptyState.remove();
+            // Swipe right to go to AI page
+            if (deltaX > 100 && Math.abs(deltaY) < 100) {
+                window.location.href = 'ai-nova.html';
             }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            // Add to current chat
-            currentChat.push({ sender, text, timestamp: Date.now() });
-        }
+        }, false);
 
-        function showLoading() {
-            const messagesContainer = document.getElementById('chat-messages');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message assistant';
-            loadingDiv.id = 'loading-message';
-            loadingDiv.innerHTML = '<div class="message-bubble"><div class="loading"><div class="spinner"></div></div></div>';
-            messagesContainer.appendChild(loadingDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function hideLoading() {
-            const loading = document.getElementById('loading-message');
-            if (loading) {
-                loading.remove();
-            }
-        }
-
-        function generateResponse(question) {
-            const responses = [
-                "Bu konuda size yardımcı olabilirim. Tarım ve hayvancılık alanında deneyimli bir uzmanım.",
-                "Çok iyi bir soru! Bu durumda şunları öneriyorum...",
-                "Bu konu hakkında detaylı bilgi verebilirim. İhtiyacınız olan çözümü bulalım.",
-                "Deneyimime göre bu durumda en iyi yaklaşım...",
-                "Bu sorunuzla ilgili praktik çözümler önerebilirim."
-            ];
-            
-            return responses[Math.floor(Math.random() * responses.length)];
-        }
-
-        function clearChat() {
-            const messagesContainer = document.getElementById('chat-messages');
-            messagesContainer.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">💬</div>
-                    <div class="empty-text">Merhaba! Size nasıl yardımcı olabilirim?<br>Tarım ve hayvancılık konularında sorularınızı sorabilirsiniz.</div>
-                </div>
-            `;
-            currentChat = [];
-        }
-
-        function saveToHistory(question, answer) {
-            const chatItem = {
-                id: Date.now(),
-                question,
-                answer,
-                timestamp: Date.now()
-            };
-            
-            chatHistory.unshift(chatItem);
-            
-            // Keep only last 50 chats
-            if (chatHistory.length > 50) {
-                chatHistory = chatHistory.slice(0, 50);
-            }
-            
-            localStorage.setItem('tarpovizyon_chat_history', JSON.stringify(chatHistory));
-        }
-
-        function loadChatHistory() {
-            const historyContainer = document.getElementById('history-list');
-            
-            if (chatHistory.length === 0) {
-                historyContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📚</div>
-                        <div class="empty-text">Henüz sohbet geçmişiniz bulunmuyor.<br>İlk sohbetinizi başlatın!</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            historyContainer.innerHTML = chatHistory.map(chat => `
-                <div class="history-item" onclick="viewChatDetail('${chat.id}')">
-                    <div class="history-question">${chat.question}</div>
-                    <div class="history-preview">${chat.answer}</div>
-                    <div class="history-time">${formatTime(chat.timestamp)}</div>
-                </div>
-            `).join('');
-        }
-
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = now - date;
-            
-            if (diff < 60000) return 'Az önce';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)} dakika önce`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)} saat önce`;
-            return date.toLocaleDateString('tr-TR');
-        }
-
-        function viewChatDetail(chatId) {
-            const chat = chatHistory.find(c => c.id == chatId);
-            if (chat) {
-                // Switch to chat tab and load this conversation
-                switchTab('chat');
-                clearChat();
-                addMessage('user', chat.question);
-                addMessage('assistant', chat.answer);
-            }
-        }
-
-        function clearAllData() {
-            if (confirm('Tüm sohbet geçmişiniz silinecek. Emin misiniz?')) {
-                localStorage.removeItem('tarpovizyon_chat_history');
-                chatHistory = [];
-                clearChat();
-                loadChatHistory();
-                alert('Tüm veriler temizlendi.');
-            }
-        }
-
-        // Auto-resize textarea
-        document.getElementById('chat-input').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
-
-        // Send message on Enter
-        document.getElementById('chat-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Viewport height fix for mobile
+        // Viewport height fix for mobile browsers
         function setVH() {
             let vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -757,10 +418,63 @@
         window.addEventListener('resize', setVH);
         window.addEventListener('orientationchange', setVH);
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load initial tab
-            switchTab('home');
+        // Performance optimization
+        const features = document.querySelectorAll('.feature');
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        features.forEach(feature => {
+            feature.style.opacity = '0';
+            feature.style.transform = 'translateY(20px)';
+            feature.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(feature);
+        });
+
+        // Auto redirect with countdown
+        let countdown = 3;
+        const updateCountdown = () => {
+            const countdownElement = document.querySelector('.footer p:last-child');
+            if (countdownElement) {
+                countdownElement.textContent = `Otomatik yönlendirme: ${countdown} saniye`;
+                countdown--;
+                
+                if (countdown < 0) {
+                    window.location.href = 'ai-nova.html';
+                }
+            }
+        };
+        
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        
+        // Click to cancel auto redirect
+        document.addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            const countdownElement = document.querySelector('.footer p:last-child');
+            if (countdownElement) {
+                countdownElement.textContent = 'Otomatik yönlendirme iptal edildi';
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const btn = document.querySelector('.btn');
+                if (btn && document.activeElement === btn) {
+                    e.preventDefault();
+                    btn.click();
+                }
+            }
         });
     </script>
 </body>
