@@ -180,6 +180,74 @@
         overflow: hidden;
         line-clamp: 3;
       }
+
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        /* Ana container'ı tam ekran yap */
+        main {
+          flex-direction: column;
+        }
+        
+        /* Chat container'ı tam genişlik yap */
+        .flex-1 {
+          padding: 0;
+        }
+        
+        /* History sidebar'ı mobilde overlay olarak göster */
+        #history-sidebar {
+          width: 85vw;
+          max-width: 320px;
+          box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+          transform: translateX(100%);
+          transition: transform 0.3s ease-in-out;
+        }
+        
+        #history-sidebar.flex {
+          transform: translateX(0);
+        }
+        
+        /* Chat header'da daha az padding */
+        .bg-gradient-to-r.from-primary.to-secondary {
+          padding: 1rem 1.5rem;
+        }
+        
+        /* Chat mesajlarında daha az padding */
+        #chat-messages {
+          padding: 1rem;
+        }
+        
+        /* Input container'da daha az padding */
+        .border-t.border-gray-200 {
+          padding: 1rem;
+        }
+        
+        /* Butonları daha büyük yap (touch-friendly) */
+        button {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        
+        /* Voice modal'ı daha küçük yap */
+        #voice-modal .bg-white {
+          margin: 1rem;
+          max-width: calc(100vw - 2rem);
+        }
+      }
+
+      /* Very small screens */
+      @media (max-width: 480px) {
+        #history-sidebar {
+          width: 90vw;
+        }
+        
+        .text-xl {
+          font-size: 1.1rem;
+        }
+        
+        .text-sm {
+          font-size: 0.8rem;
+        }
+      }
     </style>
 </head>
 <body class="bg-light dark:bg-dark text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
@@ -194,6 +262,10 @@
             <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
+                  <!-- Hamburger Menu Button (Mobile Only) -->
+                  <button id="menu-toggle" class="md:hidden p-2 hover:bg-white/20 rounded-lg transition-colors" title="Menü">
+                    <i class="fas fa-bars"></i>
+                  </button>
                   <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
                     <img src="tarpol logo.png" alt="TARPOL Logo" class="w-8 h-8 object-contain">
                   </div>
@@ -266,15 +338,23 @@
       </div>
       
       <!-- Soru/Cevap Geçmiş Paneli -->
-      <div class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
+      <div id="history-sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex fixed md:relative inset-y-0 right-0 z-40 md:z-auto">
+        <!-- Mobile Overlay -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden"></div>
         <!-- Geçmiş Header -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sohbet Geçmişi</h3>
-            <button id="clear-history" class="text-gray-400 hover:text-red-500 transition-colors" title="Geçmişi Temizle">
-              <i class="fas fa-trash text-sm"></i>
-                  </button>
-                </div>
+            <div class="flex items-center gap-2">
+              <!-- Close Button (Mobile Only) -->
+              <button id="close-sidebar" class="md:hidden p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" title="Kapat">
+                <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
+              </button>
+              <button id="clear-history" class="text-gray-400 hover:text-red-500 transition-colors" title="Geçmişi Temizle">
+                <i class="fas fa-trash text-sm"></i>
+              </button>
+            </div>
+          </div>
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Son soru ve cevaplarınız</p>
               </div>
 
@@ -338,6 +418,40 @@
 
     <!-- JavaScript -->
     <script>
+      // Hamburger Menu Functionality
+      const menuToggle = document.getElementById('menu-toggle');
+      const historySidebar = document.getElementById('history-sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      const closeSidebar = document.getElementById('close-sidebar');
+
+      // Sidebar'ı aç
+      function openSidebar() {
+        historySidebar.classList.remove('hidden');
+        historySidebar.classList.add('flex');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Scroll'u engelle
+      }
+
+      // Sidebar'ı kapat
+      function closeSidebarMenu() {
+        historySidebar.classList.add('hidden');
+        historySidebar.classList.remove('flex');
+        sidebarOverlay.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Scroll'u geri getir
+      }
+
+      // Event listeners
+      menuToggle?.addEventListener('click', openSidebar);
+      closeSidebar?.addEventListener('click', closeSidebarMenu);
+      sidebarOverlay?.addEventListener('click', closeSidebarMenu);
+
+      // Escape tuşu ile kapat
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !historySidebar.classList.contains('hidden')) {
+          closeSidebarMenu();
+        }
+      });
+
       // Tema değiştirme
       function applyTheme() {
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
