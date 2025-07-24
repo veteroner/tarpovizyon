@@ -2,140 +2,766 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TarpoVizyon AI - Tarım ve Hayvancılık AI Uzmanı</title>
-    <meta name="description" content="TarpoVizyon AI - Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanı">
-    <meta name="keywords" content="tarım, hayvancılık, AI, yapay zeka, veteriner, çiftçilik">
-    <meta name="author" content="Veteriner Hekim Öner Özbey">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="TarpoVizyon AI">
-    <meta property="og:description" content="Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanı">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tarpovizyon-ai.netlify.app">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TarpoVizyon AI</title>
+    <meta name="description" content="Tarım ve hayvancılık AI uzmanı">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
     
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            box-sizing: border-box;
         }
         
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 2rem;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
         }
         
-        .logo {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        
-        h1 {
-            color: #2d3748;
-            margin-bottom: 1rem;
-            font-size: 2.5rem;
-        }
-        
-        .subtitle {
-            color: #4a5568;
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
             color: white;
-            padding: 1rem 2rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
-        }
-        
-        .features {
-            margin-top: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .feature {
-            background: #f7fafc;
             padding: 1rem;
-            border-radius: 10px;
-            border-left: 4px solid #48bb78;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
         }
         
-        .feature h3 {
-            color: #2d3748;
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .header .subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            height: calc(100vh - 140px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 0.875rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .nav-tab.active {
+            color: #22c55e;
+            border-bottom-color: #22c55e;
+            font-weight: 600;
+        }
+        
+        .nav-tab:hover {
+            background: #f9fafb;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tab-content.hidden {
+            display: none;
+        }
+        
+        /* Home Tab */
+        .welcome-section {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .logo-large {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #f1f3f4;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
             margin-bottom: 0.5rem;
         }
         
-        .feature p {
-            color: #4a5568;
+        .feature-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .feature-desc {
+            font-size: 0.75rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        /* Chat Tab */
+        .chat-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .new-chat-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            animation: slideInUp 0.3s ease;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            text-align: right;
+        }
+        
+        .message.assistant {
+            text-align: left;
+        }
+        
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
             font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .message.user .message-bubble {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .message.assistant .message-bubble {
+            background: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .chat-input-area {
+            background: white;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+        
+        .chat-input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            resize: none;
+            max-height: 100px;
+            min-height: 44px;
+        }
+        
+        .send-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        /* History Tab */
+        .history-list {
+            background: white;
+        }
+        
+        .history-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .history-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .history-question {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+        
+        .history-preview {
+            color: #6b7280;
+            font-size: 0.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .history-time {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Settings Tab */
+        .settings-section {
+            background: white;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .settings-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        
+        .settings-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-label {
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        
+        .settings-value {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #22c55e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Safe Area for iOS */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .main-content {
+                height: calc(100vh - 140px - env(safe-area-inset-bottom));
+            }
+            
+            .chat-input-area {
+                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">🌾</div>
-        <h1>TarpoVizyon AI</h1>
-        <p class="subtitle">Tarım ve Hayvancılık AI Uzmanı</p>
-        
-        <a href="ai-nova.html" class="btn">AI Asistanına Başla</a>
-        
-        <div class="features">
-            <div class="feature">
-                <h3>🌱 Tarım Uzmanlığı</h3>
-                <p>Bitkisel üretim, hastalık mücadelesi ve sürdürülebilir tarım konularında uzman bilgiler</p>
-            </div>
-            <div class="feature">
-                <h3>🐄 Hayvancılık</h3>
-                <p>Beslenme, hastalıklar, verim artırma ve mera yönetimi konularında profesyonel öneriler</p>
-            </div>
-            <div class="feature">
-                <h3>🎯 Yaratıcı Mod</h3>
-                <p>Herhangi bir konuda detaylı bilgi ve profesyonel yanıtlar için yaratıcı mod</p>
-            </div>
-            <div class="feature">
-                <h3>🎤 Sesli Asistan</h3>
-                <p>Sesli komutlarla kolay kullanım ve ElevenLabs entegrasyonu ile doğal ses</p>
+    <!-- Header -->
+    <div class="header">
+        <h1>🌾 TarpoVizyon AI</h1>
+        <div class="subtitle">Tarım ve Hayvancılık Uzmanı</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="home">Ana Sayfa</button>
+            <button class="nav-tab" data-tab="chat">Sohbet</button>
+            <button class="nav-tab" data-tab="history">Geçmiş</button>
+            <button class="nav-tab" data-tab="settings">Ayarlar</button>
+        </div>
+
+        <!-- Home Tab -->
+        <div id="home-tab" class="tab-content">
+            <div class="welcome-section">
+                <div class="logo-large">🌾</div>
+                <h2 style="color: #374151; margin-bottom: 0.5rem;">Hoş Geldiniz</h2>
+                <p style="color: #6b7280; margin-bottom: 2rem;">Tarım ve hayvancılık sorularınız için AI uzmanınız hazır</p>
+                
+                <button class="start-btn" onclick="switchTab('chat')">
+                    🚀 Sohbete Başla
+                </button>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🌱</div>
+                        <div class="feature-title">Tarım Uzmanlığı</div>
+                        <div class="feature-desc">Bitkisel üretim ve hastalık mücadelesi</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🐄</div>
+                        <div class="feature-title">Hayvancılık</div>
+                        <div class="feature-desc">Beslenme ve sağlık yönetimi</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">Uzman Öneriler</div>
+                        <div class="feature-desc">Kişiselleştirilmiş çözümler</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎤</div>
+                        <div class="feature-title">Sesli Asistan</div>
+                        <div class="feature-desc">Konuşarak soru sorabilirsiniz</div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <p style="margin-top: 2rem; color: #718096; font-size: 0.9rem;">
-            Veteriner Hekim Öner Özbey tarafından geliştirildi
-        </p>
+
+        <!-- Chat Tab -->
+        <div id="chat-tab" class="tab-content hidden">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-title">Yeni Sohbet</div>
+                    <button class="new-chat-btn" onclick="clearChat()">Temizle</button>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <div class="empty-text">Merhaba! Size nasıl yardımcı olabilirim?<br>Tarım ve hayvancılık konularında sorularınızı sorabilirsiniz.</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <textarea class="chat-input" id="chat-input" placeholder="Sorunuzu yazın..." rows="1"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history-tab" class="tab-content hidden">
+            <div id="history-list" class="history-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <div class="empty-text">Henüz sohbet geçmişiniz bulunmuyor.<br>İlk sohbetinizi başlatın!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content hidden">
+            <div class="settings-section">
+                <div class="settings-header">Genel Ayarlar</div>
+                <div class="settings-item">
+                    <div class="settings-label">Sesli Yanıt</div>
+                    <div class="settings-value">Kapalı</div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">Tema</div>
+                    <div class="settings-value">Açık</div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-header">Hakkında</div>
+                <div class="settings-item">
+                    <div class="settings-label">Versiyon</div>
+                    <div class="settings-value">1.0.0</div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">Model</div>
+                    <div class="settings-value">GPT-4</div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-header">Veri Yönetimi</div>
+                <div class="settings-item" onclick="clearAllData()">
+                    <div class="settings-label" style="color: #dc2626;">Tüm Verileri Temizle</div>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
     <script>
-        // Otomatik yönlendirme (3 saniye sonra)
-        setTimeout(() => {
-            window.location.href = 'ai-nova.html';
-        }, 3000);
+        // Global Variables
+        let currentTab = 'home';
+        let chatHistory = JSON.parse(localStorage.getItem('tarpovizyon_chat_history') || '[]');
+        let currentChat = [];
+
+        // Tab Management
+        function switchTab(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Activate selected tab
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            
+            currentTab = tabName;
+            
+            // Load tab specific data
+            if (tabName === 'history') {
+                loadChatHistory();
+            }
+        }
+
+        // Tab click handlers
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                switchTab(tabName);
+            });
+        });
+
+        // Chat Functions
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+            
+            // Show loading
+            showLoading();
+            
+            // Simulate AI response
+            setTimeout(() => {
+                hideLoading();
+                const response = generateResponse(message);
+                addMessage('assistant', response);
+                
+                // Save to history
+                saveToHistory(message, response);
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function addMessage(sender, text) {
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            // Remove empty state if exists
+            const emptyState = messagesContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Add to current chat
+            currentChat.push({ sender, text, timestamp: Date.now() });
+        }
+
+        function showLoading() {
+            const messagesContainer = document.getElementById('chat-messages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant';
+            loadingDiv.id = 'loading-message';
+            loadingDiv.innerHTML = '<div class="message-bubble"><div class="loading"><div class="spinner"></div></div></div>';
+            messagesContainer.appendChild(loadingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loading-message');
+            if (loading) {
+                loading.remove();
+            }
+        }
+
+        function generateResponse(question) {
+            const responses = [
+                "Bu konuda size yardımcı olabilirim. Tarım ve hayvancılık alanında deneyimli bir uzmanım.",
+                "Çok iyi bir soru! Bu durumda şunları öneriyorum...",
+                "Bu konu hakkında detaylı bilgi verebilirim. İhtiyacınız olan çözümü bulalım.",
+                "Deneyimime göre bu durumda en iyi yaklaşım...",
+                "Bu sorunuzla ilgili praktik çözümler önerebilirim."
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        function clearChat() {
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <div class="empty-text">Merhaba! Size nasıl yardımcı olabilirim?<br>Tarım ve hayvancılık konularında sorularınızı sorabilirsiniz.</div>
+                </div>
+            `;
+            currentChat = [];
+        }
+
+        function saveToHistory(question, answer) {
+            const chatItem = {
+                id: Date.now(),
+                question,
+                answer,
+                timestamp: Date.now()
+            };
+            
+            chatHistory.unshift(chatItem);
+            
+            // Keep only last 50 chats
+            if (chatHistory.length > 50) {
+                chatHistory = chatHistory.slice(0, 50);
+            }
+            
+            localStorage.setItem('tarpovizyon_chat_history', JSON.stringify(chatHistory));
+        }
+
+        function loadChatHistory() {
+            const historyContainer = document.getElementById('history-list');
+            
+            if (chatHistory.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div class="empty-text">Henüz sohbet geçmişiniz bulunmuyor.<br>İlk sohbetinizi başlatın!</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            historyContainer.innerHTML = chatHistory.map(chat => `
+                <div class="history-item" onclick="viewChatDetail('${chat.id}')">
+                    <div class="history-question">${chat.question}</div>
+                    <div class="history-preview">${chat.answer}</div>
+                    <div class="history-time">${formatTime(chat.timestamp)}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Az önce';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} dakika önce`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} saat önce`;
+            return date.toLocaleDateString('tr-TR');
+        }
+
+        function viewChatDetail(chatId) {
+            const chat = chatHistory.find(c => c.id == chatId);
+            if (chat) {
+                // Switch to chat tab and load this conversation
+                switchTab('chat');
+                clearChat();
+                addMessage('user', chat.question);
+                addMessage('assistant', chat.answer);
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Tüm sohbet geçmişiniz silinecek. Emin misiniz?')) {
+                localStorage.removeItem('tarpovizyon_chat_history');
+                chatHistory = [];
+                clearChat();
+                loadChatHistory();
+                alert('Tüm veriler temizlendi.');
+            }
+        }
+
+        // Auto-resize textarea
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Send message on Enter
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Viewport height fix for mobile
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial tab
+            switchTab('home');
+        });
     </script>
 </body>
 </html> 
