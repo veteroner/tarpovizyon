@@ -224,6 +224,38 @@
                 font-size: 0.85rem;
             }
         }
+
+        /* Mobile Menu Styles */
+        #mobile-menu-btn {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        #mobile-menu {
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hide mobile menu button on larger screens */
+        @media (min-width: 768px) {
+            #mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        /* Dark mode mobile menu */
+        @media (prefers-color-scheme: dark) {
+            #mobile-menu {
+                background: #1a202c;
+            }
+            
+            #mobile-menu-btn {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
         
         /* Tablet Styles */
         @media (min-width: 768px) {
@@ -322,6 +354,59 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 md:hidden bg-white/20 backdrop-blur-sm text-white p-3 rounded-xl shadow-lg transition-all duration-300" aria-label="Menü">
+        <i class="fas fa-bars text-lg"></i>
+    </button>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-80 bg-white dark:bg-gray-800 transform -translate-x-full transition-transform duration-300 z-50 shadow-xl">
+        <div class="p-6">
+            <!-- Menu Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <span class="text-xl">🌾</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white">TarpoVizyon AI</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Ana Menü</p>
+                    </div>
+                </div>
+                <button id="close-menu" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
+                </button>
+            </div>
+
+            <!-- Menu Items -->
+            <div class="space-y-2">
+                <a href="ai-nova.html" class="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <i class="fas fa-robot text-primary"></i>
+                    <span class="text-gray-700 dark:text-gray-300">AI Asistanı</span>
+                </a>
+                <a href="admin.html" class="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <i class="fas fa-chart-bar text-blue-500"></i>
+                    <span class="text-gray-700 dark:text-gray-300">Yönetim Paneli</span>
+                </a>
+                <button id="theme-toggle" class="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors w-full text-left">
+                    <i class="fas fa-moon text-purple-500"></i>
+                    <span class="text-gray-700 dark:text-gray-300">Tema Değiştir</span>
+                </button>
+                <div class="border-t border-gray-200 dark:border-gray-600 my-3"></div>
+                <div class="p-3">
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Hakkında</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        TARPOL tarafından geliştirildi.<br>
+                        Veteriner Hekim Öner Özbey
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="logo">🌾</div>
         <h1>TarpoVizyon AI</h1>
@@ -375,6 +460,78 @@
     </div>
     
     <script>
+        // Mobile Menu Functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const closeMenuBtn = document.getElementById('close-menu');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Menü açma
+        function openMobileMenu() {
+            mobileMenu.classList.add('open');
+            mobileMenuOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Menü kapatma
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('open');
+            mobileMenuOverlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        mobileMenuBtn?.addEventListener('click', openMobileMenu);
+        closeMenuBtn?.addEventListener('click', closeMobileMenu);
+        mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+
+        // Escape tuşu ile menü kapatma
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+                closeMobileMenu();
+            }
+        });
+
+        // Tema değiştirme
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+            updateThemeIcon();
+        }
+
+        // Tema ikonu güncelleme
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = themeToggleBtn?.querySelector('i');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun text-yellow-500' : 'fas fa-moon text-purple-500';
+            }
+            const text = themeToggleBtn?.querySelector('span');
+            if (text) {
+                text.textContent = isDark ? 'Açık Tema' : 'Karanlık Tema';
+            }
+        }
+
+        // Tema başlangıç durumu
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcon();
+        }
+
+        themeToggleBtn?.addEventListener('click', toggleTheme);
+        initTheme();
+
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
