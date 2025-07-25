@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Wix Embed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .embed-container {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .fallback {
+            display: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .fallback-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .fallback-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Iframe Embed -->
+    <iframe 
+        src="https://tarpovizyon-ai.netlify.app/wix-simple.html" 
+        class="embed-container"
+        onload="this.style.display='block'"
+        onerror="showFallback()">
+    </iframe>
+    
+    <!-- Fallback Content -->
+    <div id="fallback" class="fallback">
+        <div class="fallback-content">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🌾</div>
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">TarpoVizyon AI</h1>
+            <p style="margin-bottom: 2rem;">Tarım ve Hayvancılık AI Uzmanı</p>
+            <a href="https://tarpovizyon-ai.netlify.app/ai-nova.html" 
+               class="fallback-btn" 
+               target="_blank">
+                🚀 AI Asistanına Başla
+            </a>
+            <p style="margin-top: 2rem; font-size: 0.8rem; opacity: 0.8;">
+                TARPOL tarafından geliştirildi
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function showFallback() {
+            document.querySelector('.embed-container').style.display = 'none';
+            document.getElementById('fallback').style.display = 'flex';
+        }
+        
+        // Check if iframe loads successfully
+        setTimeout(function() {
+            const iframe = document.querySelector('.embed-container');
+            if (iframe.contentWindow.location.href === 'about:blank') {
+                showFallback();
+            }
+        }, 3000);
+    </script>
+</body>
+</html> 

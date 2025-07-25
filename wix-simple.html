@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .title {
+            color: #2d3748;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #4a5568;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .feature {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #48bb78;
+            text-align: left;
+        }
+        
+        .feature h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature p {
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            color: #718096;
+            font-size: 0.8rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+                min-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1 class="title">TarpoVizyon AI</h1>
+        <p class="subtitle">Tarım ve Hayvancılık AI Uzmanı</p>
+        
+        <a href="https://tarpovizyon-ai.netlify.app/ai-nova.html" class="btn" target="_blank">
+            🚀 AI Asistanına Başla
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>
+                    <span>🌱</span>
+                    Tarım Uzmanlığı
+                </h3>
+                <p>Bitkisel üretim, hastalık mücadelesi ve sürdürülebilir tarım konularında uzman bilgiler</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span>🐄</span>
+                    Hayvancılık
+                </h3>
+                <p>Beslenme, hastalıklar, verim artırma ve mera yönetimi konularında profesyonel öneriler</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span>🎯</span>
+                    Yaratıcı Mod
+                </h3>
+                <p>Herhangi bir konuda detaylı bilgi ve profesyonel yanıtlar için yaratıcı mod</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span>🎤</span>
+                    Sesli Asistan
+                </h3>
+                <p>Sesli komutlarla kolay kullanım ve ElevenLabs entegrasyonu ile doğal ses</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>TARPOL tarafından geliştirildi</p>
+        </div>
+    </div>
+</body>
+</html> 
