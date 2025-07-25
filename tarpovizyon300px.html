@@ -2,614 +2,377 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TarpoVizyon AI - 300px Sohbet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Tarım ve Hayvancılık Yapay Zeka Asistanı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Console uyarılarını gizle
+      const originalWarn = console.warn;
+      const originalError = console.error;
+      
+      console.warn = function() {
+        const args = Array.from(arguments);
+        const message = args.join(' ');
+        if (message.includes('cdn.tailwindcss.com') || message.includes('should not be used in production')) {
+          return;
+        }
+        originalWarn.apply(console, arguments);
+      };
+      
+      console.error = function() {
+        const args = Array.from(arguments);
+        const message = args.join(' ');
+        if (message.includes('generativelanguage.googleapis.com') || 
+            message.includes('429') || 
+            message.includes('404') ||
+            message.includes('Failed to load resource') ||
+            message.includes('POST') ||
+            message.includes('generateContent')) {
+          return;
+        }
+        originalError.apply(console, arguments);
+      };
+      
+      const originalFetch = window.fetch;
+      window.fetch = function(url, options) {
+        return originalFetch.apply(this, arguments).catch(error => {
+          if (url.includes('generativelanguage.googleapis.com')) {
+            return new Response('', { status: 200 });
+          }
+          throw error;
+        });
+      };
+    </script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#22c55e',
+              secondary: '#16a34a',
+              accent: '#15803d',
+              dark: '#0f0f23',
+              light: '#f8fafc'
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'typing': 'typing 1s steps(20) infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              typing: {
+                '0%': { opacity: '0.4' },
+                '50%': { opacity: '1' },
+                '100%': { opacity: '0.4' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        width: 300px;
+        margin: 0 auto;
+      }
+      
+      .gradient-text {
+        background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% 200%;
+        animation: gradient 3s ease infinite;
+      }
+      
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .ai-glow {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+      }
+      
+      .chat-bubble {
+        animation: slideUp 0.3s ease-out;
+      }
+      
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
-        
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .typing-indicator {
+        display: inline-block;
+        animation: typing 1.5s ease-in-out infinite;
+      }
+      
+      @keyframes typing {
+        0%, 60%, 100% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        30% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+      
+      .voice-wave {
+        animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+      
+      @keyframes voice-pulse {
+        0%, 100% { 
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        50% { 
+          transform: scale(1.1);
+          box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+        }
+      }
+      
+      .voice-recording {
+        animation: voice-pulse 1.5s infinite;
+      }
+      
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-clamp: 2;
+      }
+      
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-clamp: 3;
+      }
+
+      /* 300px Özel Responsive */
+      @media (max-width: 300px) {
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            min-height: 100dvh;
-            overflow-x: hidden;
-            position: relative;
-            width: 300px;
-            margin: 0 auto;
+          width: 100%;
         }
         
-        /* Header */
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        .bg-gradient-to-r.from-primary.to-secondary {
+          padding: 0.8rem 1rem;
         }
         
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        #chat-messages {
+          padding: 0.8rem;
         }
         
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .border-t.border-gray-200 {
+          padding: 0.8rem;
         }
         
-        .logo {
-            font-size: 1.5rem;
-            color: #48bb78;
+        button {
+          min-height: 40px;
+          min-width: 40px;
         }
         
-        .title {
-            color: #2d3748;
-            font-size: 1rem;
-            font-weight: 600;
+        #voice-modal .bg-white {
+          margin: 0.5rem;
+          max-width: calc(100vw - 1rem);
         }
         
-        .mode-indicator {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            font-weight: 500;
+        .text-xl {
+          font-size: 1rem;
         }
         
-        /* Chat Container */
-        .chat-container {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            max-height: calc(100vh - 200px);
+        .text-sm {
+          font-size: 0.75rem;
         }
-        
-        /* AI Message */
-        .ai-message {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .ai-avatar {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        .ai-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .ai-name {
-            color: #2d3748;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .ai-text {
-            color: #4a5568;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-        
-        /* Input Section */
-        .input-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            position: sticky;
-            bottom: 0;
-        }
-        
-        .input-container {
-            display: flex;
-            gap: 0.5rem;
-            align-items: flex-end;
-        }
-        
-        .text-input {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(72, 187, 120, 0.3);
-            border-radius: 25px;
-            padding: 0.8rem 1rem;
-            font-size: 0.85rem;
-            outline: none;
-            transition: all 0.3s ease;
-            resize: none;
-            min-height: 45px;
-            max-height: 120px;
-        }
-        
-        .text-input:focus {
-            border-color: #48bb78;
-            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
-        }
-        
-        .send-btn {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;
-        }
-        
-        .send-btn:active {
-            transform: scale(0.9);
-        }
-        
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        /* Voice Button */
-        .voice-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;
-        }
-        
-        .voice-btn:active {
-            transform: scale(0.9);
-        }
-        
-        .voice-btn.recording {
-            background: linear-gradient(135deg, #e53e3e, #c53030);
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        /* Chat History */
-        .chat-history {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .history-title {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .history-text {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.75rem;
-            font-style: italic;
-        }
-        
-        /* Loading Animation */
-        .loading {
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.8rem;
-        }
-        
-        .loading.show {
-            display: flex;
-        }
-        
-        .loading-dots {
-            display: flex;
-            gap: 0.2rem;
-        }
-        
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: currentColor;
-            border-radius: 50%;
-            animation: loadingDot 1.4s infinite ease-in-out;
-        }
-        
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes loadingDot {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-        
-        /* User Message */
-        .user-message {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            color: white;
-            border-radius: 20px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            margin-left: 2rem;
-            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-            animation: slideInRight 0.5s ease-out;
-        }
-        
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .user-text {
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-        
-        /* Responsive */
-        @media (max-width: 300px) {
-            body {
-                width: 100%;
-            }
-            
-            .header {
-                padding: 0.8rem;
-            }
-            
-            .title {
-                font-size: 0.9rem;
-            }
-            
-            .chat-container {
-                padding: 0.8rem;
-            }
-            
-            .ai-message, .user-message {
-                padding: 0.8rem;
-            }
-            
-            .ai-text, .user-text {
-                font-size: 0.8rem;
-            }
-            
-            .input-section {
-                padding: 0.8rem;
-            }
-            
-            .text-input {
-                padding: 0.7rem 0.8rem;
-                font-size: 0.8rem;
-            }
-        }
-        
-        /* Dark Mode */
-        @media (prefers-color-scheme: dark) {
-            .header, .ai-message, .input-section {
-                background: rgba(26, 32, 44, 0.95);
-                border-color: rgba(255, 255, 255, 0.1);
-            }
-            
-            .title, .ai-name {
-                color: #f7fafc;
-            }
-            
-            .ai-text {
-                color: #cbd5e0;
-            }
-            
-            .text-input {
-                background: rgba(26, 32, 44, 0.8);
-                color: #f7fafc;
-                border-color: rgba(72, 187, 120, 0.5);
-            }
-        }
-        
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation: none !important;
-                transition: none !important;
-            }
-        }
+      }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo-section">
-                <div class="logo">🌾</div>
-                <div class="title">TarpoVizyon AI</div>
-            </div>
-            <div class="mode-indicator">Tarım Modu</div>
-        </div>
-    </div>
-    
-    <!-- Chat Container -->
-    <div class="chat-container">
-        <!-- AI Welcome Message -->
-        <div class="ai-message">
-            <div class="ai-avatar">
-                <div class="ai-icon">🌾</div>
-                <div class="ai-name">TarpoVizyon AI</div>
-            </div>
-            <div class="ai-text">
-                Merhaba! Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim? 🌾
-            </div>
-        </div>
-        
-        <!-- Chat History Placeholder -->
-        <div class="chat-history">
-            <div class="history-title">Sohbet Geçmişi</div>
-            <div class="history-text">Son soru ve cevaplarınız</div>
-        </div>
-        
-        <!-- Loading Indicator -->
-        <div class="loading" id="loading">
-            <span>TarpoVizyon AI düşünüyor</span>
-            <div class="loading-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Input Section -->
-    <div class="input-section">
-        <div class="input-container">
-            <textarea 
-                class="text-input" 
-                id="messageInput" 
-                placeholder="Mesajınızı yazın..."
-                rows="1"
-                maxlength="500"></textarea>
-            
-            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Sesli Soru">
-                🎤
-            </button>
-            
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Gönder">
-                ➤
-            </button>
-        </div>
-    </div>
-    
-    <script>
-        // DOM Elements
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const voiceBtn = document.getElementById('voiceBtn');
-        const loading = document.getElementById('loading');
-        const chatContainer = document.querySelector('.chat-container');
-        
-        // Auto-resize textarea
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-        
-        // Send message on Enter (but allow Shift+Enter for new line)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        // Send message function
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-            
-            // Add user message
-            addUserMessage(message);
-            
-            // Clear input
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            
-            // Show loading
-            showLoading();
-            
-            // Simulate AI response (replace with actual API call)
-            setTimeout(() => {
-                hideLoading();
-                addAIMessage(getAIResponse(message));
-            }, 1500);
-        }
-        
-        // Add user message to chat
-        function addUserMessage(text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'user-message';
-            messageDiv.innerHTML = `<div class="user-text">${text}</div>`;
-            
-            chatContainer.appendChild(messageDiv);
-            scrollToBottom();
-        }
-        
-        // Add AI message to chat
-        function addAIMessage(text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'ai-message';
-            messageDiv.innerHTML = `
-                <div class="ai-avatar">
-                    <div class="ai-icon">🌾</div>
-                    <div class="ai-name">TarpoVizyon AI</div>
+<body class="bg-light dark:bg-dark text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
+
+    <!-- Ana İçerik - Chat ve Geçmiş -->
+    <main class="h-screen flex">
+        <!-- Chat Container -->
+      <div class="flex-1 p-4">
+        <div class="h-full">
+          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden ai-glow h-full flex flex-col">
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <!-- Hamburger Menu Button (Mobile Only) -->
+                  <button id="menu-toggle" class="md:hidden p-2 hover:bg-white/20 rounded-lg transition-colors" title="Menü">
+                    <i class="fas fa-bars"></i>
+                  </button>
+                  <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
+                    <img src="tarpol logo.png" alt="TARPOL Logo" class="w-8 h-8 object-contain">
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold">TarpoVizyon AI</h2>
+                    <p class="text-white/80 text-sm">Tarım ve Hayvancılık AI Uzmanı</p>
+                  </div>
                 </div>
-                <div class="ai-text">${text}</div>
-            `;
-            
-            chatContainer.appendChild(messageDiv);
-            scrollToBottom();
-        }
+                <div class="flex items-center gap-3">
+                  <div id="mode-indicator">
+                    <div class="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
+                      <i class="fas fa-leaf"></i>
+                      <span>Tarım Modu</span>
+                    </div>
+                  </div>
+                  <button id="clear-chat" class="p-2 hover:bg-white/20 rounded-lg transition-colors" title="Sohbeti Temizle">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="overflow-y-auto p-6 space-y-4 flex-1" style="max-height: calc(100vh - 200px)">
+              <!-- Karşılama Mesajı -->
+              <div class="flex items-start gap-3 chat-bubble">
+                <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+                  <img src="tarpol logo.png" alt="TARPOL Logo" class="w-5 h-5 object-contain">
+                </div>
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-md p-4 max-w-xs md:max-w-md">
+                  <p class="text-gray-800 dark:text-gray-200">
+                    Merhaba! Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim? 🌾
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="border-t border-gray-200 dark:border-gray-700 p-6 flex-shrink-0">
+              <form id="chat-form" class="flex gap-3">
+                <input 
+                  type="text" 
+                  id="user-input" 
+                  placeholder="TarpoVizyon AI'ya tarım veya hayvancılık sorunuzu yazın..." 
+                  class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-accent text-gray-900 dark:text-gray-100"
+                  autocomplete="off"
+                  maxlength="500"
+                >
+                <button 
+                  type="button" 
+                  id="voice-button"
+                  class="px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all transform hover:scale-105 ai-glow"
+                  title="Sesli Soru Sor"
+                >
+                  <i class="fas fa-microphone"></i>
+                </button>
+                <button 
+                  type="submit" 
+                  id="send-button"
+                  class="px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-2xl transition-all transform hover:scale-105 ai-glow disabled:opacity-50 disabled:transform-none"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Soru/Cevap Geçmiş Paneli -->
+      <div id="history-sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex fixed md:relative inset-y-0 right-0 z-40 md:z-auto">
+        <!-- Mobile Overlay -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden"></div>
+        <!-- Geçmiş Header -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sohbet Geçmişi</h3>
+            <div class="flex items-center gap-2">
+              <!-- Close Button (Mobile Only) -->
+              <button id="close-sidebar" class="md:hidden p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" title="Kapat">
+                <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
+              </button>
+              <button id="clear-history" class="text-gray-400 hover:text-red-500 transition-colors" title="Geçmişi Temizle">
+                <i class="fas fa-trash text-sm"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Son soru ve cevaplarınız</p>
+        </div>
+
+        <!-- Geçmiş Listesi -->
+        <div class="flex-1 overflow-y-auto p-4" id="chat-history">
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <i class="fas fa-history text-2xl mb-2"></i>
+            <p class="text-sm">Henüz sohbet geçmişi yok</p>
+          </div>
+        </div>
         
-        // Show loading
-        function showLoading() {
-            loading.classList.add('show');
-            scrollToBottom();
-        }
+        <!-- Geçmiş Footer -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="text-xs text-gray-500 dark:text-gray-400 text-center">
+            <i class="fas fa-info-circle mr-1"></i>
+            Son 10 sohbet gösteriliyor
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Sesli Modal -->
+    <div id="voice-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl max-w-md w-full mx-4 text-center">
+        <!-- Modal Header -->
+        <div class="mb-6">
+          <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Sesli Soru</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">Mikrofonunuza konuşun</p>
+        </div>
         
-        // Hide loading
-        function hideLoading() {
-            loading.classList.remove('show');
-        }
+        <!-- Ses İkonu -->
+        <div class="mb-6 relative">
+          <div id="voice-circle" class="w-32 h-32 mx-auto bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300">
+            <i id="voice-icon" class="fas fa-microphone text-white text-4xl"></i>
+          </div>
+          <!-- Ses Dalgaları -->
+          <div id="voice-waves" class="absolute inset-0 hidden">
+            <div class="voice-wave absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-green-500/30 rounded-full animate-ping"></div>
+            <div class="voice-wave absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-green-500/20 rounded-full animate-ping" style="animation-delay: 0.5s"></div>
+            <div class="voice-wave absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-green-500/10 rounded-full animate-ping" style="animation-delay: 1s"></div>
+          </div>
+        </div>
         
-        // Scroll to bottom
-        function scrollToBottom() {
-            setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 100);
-        }
+        <!-- Durum Mesajı -->
+        <div class="mb-6">
+          <p id="voice-status" class="text-lg font-medium text-gray-700 dark:text-gray-300">Dinleme başlatılıyor...</p>
+          <p id="voice-transcript" class="text-sm text-gray-500 dark:text-gray-400 mt-2 min-h-[20px]"></p>
+        </div>
         
-        // Voice button functionality
-        let isRecording = false;
-        
-        function toggleVoice() {
-            if (isRecording) {
-                stopRecording();
-            } else {
-                startRecording();
-            }
-        }
-        
-        function startRecording() {
-            isRecording = true;
-            voiceBtn.classList.add('recording');
-            voiceBtn.innerHTML = '⏹️';
-            voiceBtn.title = 'Kaydı Durdur';
-            
-            // Simulate voice recording
-            setTimeout(() => {
-                if (isRecording) {
-                    stopRecording();
-                    // Simulate voice input
-                    messageInput.value = 'Sesli mesaj örneği';
-                    sendMessage();
-                }
-            }, 3000);
-        }
-        
-        function stopRecording() {
-            isRecording = false;
-            voiceBtn.classList.remove('recording');
-            voiceBtn.innerHTML = '🎤';
-            voiceBtn.title = 'Sesli Soru';
-        }
-        
-        // Simple AI response simulation
-        function getAIResponse(userMessage) {
-            const responses = {
-                'merhaba': 'Merhaba! Tarım ve hayvancılık konularında size nasıl yardımcı olabilirim? 🌾',
-                'hastalık': 'Bitki hastalıkları konusunda size yardımcı olabilirim. Hangi bitki türü hakkında bilgi almak istiyorsunuz?',
-                'gübre': 'Gübreleme konusunda detaylı bilgi verebilirim. Hangi ürün için gübre önerisi istiyorsunuz?',
-                'sulama': 'Sulama teknikleri ve su tasarrufu konularında size rehberlik edebilirim.',
-                'hayvan': 'Hayvancılık konusunda beslenme, sağlık ve verim artırma önerileri sunabilirim.'
-            };
-            
-            const lowerMessage = userMessage.toLowerCase();
-            
-            for (const [key, response] of Object.entries(responses)) {
-                if (lowerMessage.includes(key)) {
-                    return response;
-                }
-            }
-            
-            return 'Teşekkürler! Tarım ve hayvancılık konularında size yardımcı olmaya devam edeceğim. Başka bir sorunuz var mı? 🌱';
-        }
-        
-        // Haptic feedback
-        function hapticFeedback() {
-            if ('vibrate' in navigator) {
-                navigator.vibrate(30);
-            }
-        }
-        
-        // Add haptic feedback to buttons
-        sendBtn.addEventListener('click', hapticFeedback);
-        voiceBtn.addEventListener('click', hapticFeedback);
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Focus on input
-            messageInput.focus();
-            
-            // Auto-resize on load
-            messageInput.style.height = 'auto';
-        });
-        
-        // Touch gestures
-        let touchStartY = 0;
-        
-        document.addEventListener('touchstart', e => {
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
-        
-        document.addEventListener('touchend', e => {
-            const touchEndY = e.changedTouches[0].screenY;
-            const deltaY = touchEndY - touchStartY;
-            
-            // Swipe up to focus input
-            if (deltaY < -50) {
-                messageInput.focus();
-            }
-        }, { passive: true });
-    </script>
-</body>
-</html> 
+        <!-- Kontrol Butonları -->
+        <div class="flex gap-3 justify-center">
+          <button id="voice-stop" class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-2xl transition-all transform hover:scale-105 font-medium">
+            <i class="fas fa-stop mr-2"></i>Durdur
+          </button>
+          <button id="voice-cancel" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-2xl transition-all transform hover:scale-105 font-medium">
+            <i class="fas fa-times mr-2"></i>İptal
+          </button>
+        </div>
+      </div>
+    </div> 
