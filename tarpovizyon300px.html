@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TarpoVizyon AI - 300px Sohbet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            position: relative;
+            width: 300px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            color: #48bb78;
+        }
+        
+        .title {
+            color: #2d3748;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .mode-indicator {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        /* AI Message */
+        .ai-message {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .ai-avatar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .ai-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .ai-name {
+            color: #2d3748;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .ai-text {
+            color: #4a5568;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        /* Input Section */
+        .input-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+        
+        .text-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            border-radius: 25px;
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: none;
+            min-height: 45px;
+            max-height: 120px;
+        }
+        
+        .text-input:focus {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .send-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Voice Button */
+        .voice-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .voice-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .voice-btn.recording {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Chat History */
+        .chat-history {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .history-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .history-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+            font-style: italic;
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .loading-dots {
+            display: flex;
+            gap: 0.2rem;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: loadingDot 1.4s infinite ease-in-out;
+        }
+        
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes loadingDot {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* User Message */
+        .user-message {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            margin-left: 2rem;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .user-text {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        /* Responsive */
+        @media (max-width: 300px) {
+            body {
+                width: 100%;
+            }
+            
+            .header {
+                padding: 0.8rem;
+            }
+            
+            .title {
+                font-size: 0.9rem;
+            }
+            
+            .chat-container {
+                padding: 0.8rem;
+            }
+            
+            .ai-message, .user-message {
+                padding: 0.8rem;
+            }
+            
+            .ai-text, .user-text {
+                font-size: 0.8rem;
+            }
+            
+            .input-section {
+                padding: 0.8rem;
+            }
+            
+            .text-input {
+                padding: 0.7rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Dark Mode */
+        @media (prefers-color-scheme: dark) {
+            .header, .ai-message, .input-section {
+                background: rgba(26, 32, 44, 0.95);
+                border-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            .title, .ai-name {
+                color: #f7fafc;
+            }
+            
+            .ai-text {
+                color: #cbd5e0;
+            }
+            
+            .text-input {
+                background: rgba(26, 32, 44, 0.8);
+                color: #f7fafc;
+                border-color: rgba(72, 187, 120, 0.5);
+            }
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">🌾</div>
+                <div class="title">TarpoVizyon AI</div>
+            </div>
+            <div class="mode-indicator">Tarım Modu</div>
+        </div>
+    </div>
+    
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- AI Welcome Message -->
+        <div class="ai-message">
+            <div class="ai-avatar">
+                <div class="ai-icon">🌾</div>
+                <div class="ai-name">TarpoVizyon AI</div>
+            </div>
+            <div class="ai-text">
+                Merhaba! Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim? 🌾
+            </div>
+        </div>
+        
+        <!-- Chat History Placeholder -->
+        <div class="chat-history">
+            <div class="history-title">Sohbet Geçmişi</div>
+            <div class="history-text">Son soru ve cevaplarınız</div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <span>TarpoVizyon AI düşünüyor</span>
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Input Section -->
+    <div class="input-section">
+        <div class="input-container">
+            <textarea 
+                class="text-input" 
+                id="messageInput" 
+                placeholder="Mesajınızı yazın..."
+                rows="1"
+                maxlength="500"></textarea>
+            
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Sesli Soru">
+                🎤
+            </button>
+            
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Gönder">
+                ➤
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const loading = document.getElementById('loading');
+        const chatContainer = document.querySelector('.chat-container');
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Send message on Enter (but allow Shift+Enter for new line)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Send message function
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addUserMessage(message);
+            
+            // Clear input
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Show loading
+            showLoading();
+            
+            // Simulate AI response (replace with actual API call)
+            setTimeout(() => {
+                hideLoading();
+                addAIMessage(getAIResponse(message));
+            }, 1500);
+        }
+        
+        // Add user message to chat
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'user-message';
+            messageDiv.innerHTML = `<div class="user-text">${text}</div>`;
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Add AI message to chat
+        function addAIMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'ai-message';
+            messageDiv.innerHTML = `
+                <div class="ai-avatar">
+                    <div class="ai-icon">🌾</div>
+                    <div class="ai-name">TarpoVizyon AI</div>
+                </div>
+                <div class="ai-text">${text}</div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Show loading
+        function showLoading() {
+            loading.classList.add('show');
+            scrollToBottom();
+        }
+        
+        // Hide loading
+        function hideLoading() {
+            loading.classList.remove('show');
+        }
+        
+        // Scroll to bottom
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
+        
+        // Voice button functionality
+        let isRecording = false;
+        
+        function toggleVoice() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            isRecording = true;
+            voiceBtn.classList.add('recording');
+            voiceBtn.innerHTML = '⏹️';
+            voiceBtn.title = 'Kaydı Durdur';
+            
+            // Simulate voice recording
+            setTimeout(() => {
+                if (isRecording) {
+                    stopRecording();
+                    // Simulate voice input
+                    messageInput.value = 'Sesli mesaj örneği';
+                    sendMessage();
+                }
+            }, 3000);
+        }
+        
+        function stopRecording() {
+            isRecording = false;
+            voiceBtn.classList.remove('recording');
+            voiceBtn.innerHTML = '🎤';
+            voiceBtn.title = 'Sesli Soru';
+        }
+        
+        // Simple AI response simulation
+        function getAIResponse(userMessage) {
+            const responses = {
+                'merhaba': 'Merhaba! Tarım ve hayvancılık konularında size nasıl yardımcı olabilirim? 🌾',
+                'hastalık': 'Bitki hastalıkları konusunda size yardımcı olabilirim. Hangi bitki türü hakkında bilgi almak istiyorsunuz?',
+                'gübre': 'Gübreleme konusunda detaylı bilgi verebilirim. Hangi ürün için gübre önerisi istiyorsunuz?',
+                'sulama': 'Sulama teknikleri ve su tasarrufu konularında size rehberlik edebilirim.',
+                'hayvan': 'Hayvancılık konusunda beslenme, sağlık ve verim artırma önerileri sunabilirim.'
+            };
+            
+            const lowerMessage = userMessage.toLowerCase();
+            
+            for (const [key, response] of Object.entries(responses)) {
+                if (lowerMessage.includes(key)) {
+                    return response;
+                }
+            }
+            
+            return 'Teşekkürler! Tarım ve hayvancılık konularında size yardımcı olmaya devam edeceğim. Başka bir sorunuz var mı? 🌱';
+        }
+        
+        // Haptic feedback
+        function hapticFeedback() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
+        }
+        
+        // Add haptic feedback to buttons
+        sendBtn.addEventListener('click', hapticFeedback);
+        voiceBtn.addEventListener('click', hapticFeedback);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on input
+            messageInput.focus();
+            
+            // Auto-resize on load
+            messageInput.style.height = 'auto';
+        });
+        
+        // Touch gestures
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', e => {
+            const touchEndY = e.changedTouches[0].screenY;
+            const deltaY = touchEndY - touchStartY;
+            
+            // Swipe up to focus input
+            if (deltaY < -50) {
+                messageInput.focus();
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html> 
