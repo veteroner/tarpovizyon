@@ -86,6 +86,38 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+      html, body, input, button, textarea {
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+      }
+      #chat-form input {
+        font-size: 13px !important;
+        padding: 6px 8px !important;
+        height: 32px !important;
+      }
+      #chat-form button {
+        font-size: 15px !important;
+        padding: 0 8px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        border-radius: 10px !important;
+      }
+      .border-t.border-gray-200 {
+        padding: 4px 4px 4px 4px !important;
+        background: #fff;
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        width: 100%;
+        z-index: 100;
+      }
+      #chat-form {
+        gap: 4px !important;
+      }
+      #chat-messages {
+        padding-bottom: 44px !important;
+        font-size: 13px !important;
+      }
       html, body {
         width: 300px;
         height: 700px;
@@ -329,20 +361,20 @@
             </div>
 
             <!-- Chat Input -->
-            <div class="border-t border-gray-200 dark:border-gray-700 p-6 flex-shrink-0">
-              <form id="chat-form" class="flex gap-3">
+            <div class="border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <form id="chat-form" class="flex gap-1">
                 <input 
                   type="text" 
                   id="user-input" 
-                  placeholder="TarpoVizyon AI'ya tarım veya hayvancılık sorunuzu yazın..." 
-                  class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-accent text-gray-900 dark:text-gray-100"
+                  placeholder="Sorunuzu yazın..." 
+                  class="flex-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-accent text-gray-900 dark:text-gray-100"
                   autocomplete="off"
                   maxlength="500"
                 >
                 <button 
                   type="button" 
                   id="voice-button"
-                  class="px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all transform hover:scale-105 ai-glow"
+                  class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all ai-glow"
                   title="Sesli Soru Sor"
                 >
                   <i class="fas fa-microphone"></i>
@@ -350,13 +382,11 @@
                 <button 
                   type="submit" 
                   id="send-button"
-                  class="px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-2xl transition-all transform hover:scale-105 ai-glow disabled:opacity-50 disabled:transform-none"
+                  class="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-2xl transition-all ai-glow disabled:opacity-50"
                 >
                   <i class="fas fa-paper-plane"></i>
                 </button>
               </form>
-              
-
             </div>
           </div>
         </div>
