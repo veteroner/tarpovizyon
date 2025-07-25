@@ -304,35 +304,6 @@
         .text-sm {
           font-size: 0.8rem;
         }
-        
-        /* Header düzenlemeleri - logo ve yazı düzeni */
-        .bg-gradient-to-r.from-primary.to-secondary h2 {
-          font-size: 0.95rem !important;
-          line-height: 1.1 !important;
-        }
-        
-        .bg-gradient-to-r.from-primary.to-secondary p {
-          font-size: 0.7rem !important;
-          line-height: 1 !important;
-        }
-        
-        /* Çöp kutusu ve butonlar için daha iyi düzen */
-        #clear-chat {
-          padding: 6px !important;
-          min-width: 36px !important;
-          min-height: 36px !important;
-        }
-        
-        #clear-history {
-          padding: 4px !important;
-          min-width: 28px !important;
-          min-height: 28px !important;
-        }
-        
-        /* Mode indicator mobilde gizle */
-        #mode-indicator {
-          display: none !important;
-        }
       }
     </style>
 </head>
@@ -345,30 +316,30 @@
         <div class="h-full">
           <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden ai-glow h-full flex flex-col">
             <!-- Chat Header -->
-            <div class="bg-gradient-to-r from-primary to-secondary p-4 text-white flex-shrink-0">
-              <div class="flex items-center justify-between min-h-[60px]">
-                <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
                   <!-- Hamburger Menu Button (Mobile Only) -->
-                  <button id="menu-toggle" class="md:hidden p-1.5 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" title="Menü">
-                    <i class="fas fa-bars text-sm"></i>
+                  <button id="menu-toggle" class="md:hidden p-2 hover:bg-white/20 rounded-lg transition-colors" title="Menü">
+                    <i class="fas fa-bars"></i>
                   </button>
-                  <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg flex-shrink-0">
-                    <img src="tarpol logo.png" alt="TARPOL Logo" class="w-10 h-10 object-contain">
+                  <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
+                    <img src="tarpol logo.png" alt="TARPOL Logo" class="w-8 h-8 object-contain">
                   </div>
-                  <div class="min-w-0 flex-1">
-                    <h2 class="text-lg font-bold leading-tight whitespace-nowrap">TarpoVizyon AI</h2>
-                    <p class="text-white/80 text-xs leading-tight">Tarım ve Hayvancılık AI Uzmanı</p>
+                  <div>
+                    <h2 class="text-base font-bold" style="font-size: 1rem;">TarpoVizyon AI</h2>
+                    <p class="text-white/80 text-sm">Tarım ve Hayvancılık AI Uzmanı</p>
                   </div>
                 </div>
-                <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                  <div id="mode-indicator" class="hidden sm:block">
-                    <div class="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
-                      <i class="fas fa-leaf text-xs"></i>
-                      <span class="text-xs">Tarım</span>
+                <div class="flex items-center gap-3">
+                  <div id="mode-indicator">
+                    <div class="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
+                      <i class="fas fa-leaf"></i>
+                      <span>Tarım Modu</span>
                     </div>
                   </div>
-                  <button id="clear-chat" class="p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" title="Sohbeti Temizle">
-                    <i class="fas fa-trash-alt text-sm"></i>
+                  <button id="clear-chat" class="p-2 hover:bg-white/20 rounded-lg transition-colors" title="Sohbeti Temizle">
+                    <i class="fas fa-trash-alt"></i>
                   </button>
                 </div>
               </div>
@@ -422,33 +393,31 @@
       </div>
       
       <!-- Soru/Cevap Geçmiş Paneli -->
-      <div id="history-sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex fixed md:relative inset-y-0 right-0 z-50 md:z-auto">
+      <div id="history-sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex fixed md:relative inset-y-0 right-0 z-40 md:z-auto">
         <!-- Mobile Overlay -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden pointer-events-none"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden"></div>
         <!-- Geçmiş Header -->
-        <div class="p-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
-            <div class="min-w-0 flex-1">
-              <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 leading-tight">Sohbet Geçmişi</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">Son soru ve cevaplarınız</p>
-            </div>
-            <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sohbet Geçmişi</h3>
+            <div class="flex items-center gap-2">
               <!-- Close Button (Mobile Only) -->
-              <button id="close-sidebar" class="md:hidden p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" title="Kapat">
-                <i class="fas fa-times text-xs text-gray-500 dark:text-gray-400"></i>
+              <button id="close-sidebar" class="md:hidden p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" title="Kapat">
+                <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
               </button>
-              <button id="clear-history" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600" title="Geçmişi Temizle">
-                <i class="fas fa-trash text-xs"></i>
+              <button id="clear-history" class="text-gray-400 hover:text-red-500 transition-colors" title="Geçmişi Temizle">
+                <i class="fas fa-trash text-sm"></i>
               </button>
             </div>
           </div>
-        </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Son soru ve cevaplarınız</p>
+              </div>
 
         <!-- Geçmiş Listesi -->
-        <div class="flex-1 overflow-y-auto p-3" id="chat-history">
-          <div class="text-center py-6 text-gray-500 dark:text-gray-400">
-            <i class="fas fa-history text-xl mb-2"></i>
-            <p class="text-xs">Henüz sohbet geçmişi yok</p>
+        <div class="flex-1 overflow-y-auto p-4" id="chat-history">
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <i class="fas fa-history text-2xl mb-2"></i>
+            <p class="text-sm">Henüz sohbet geçmişi yok</p>
             </div>
         </div>
         
@@ -504,85 +473,6 @@
 
     <!-- JavaScript -->
     <script>
-      // TARPOL Vakfı Bilgileri (Hard Kod)
-      const tarpolData = {
-        "vakif_bilgileri": {
-          "adi": "TARPOL - Tarımsal Strateji ve Politika Geliştirme Merkezi",
-          "kurulus_tarihi": "2023",
-          "resmi_adi": "TARPOL",
-          "tip": "Düşünce Kuruluşu ve Strateji Merkezi",
-          "misyon": "Ülkesel ve küresel gelişmeleri izleyerek, tarım sektörü ve paydaşlarının beklenti ve talepleri doğrultusunda projeler hazırlamak, araştırmalar yapmak, raporlar yayımlamak, sektörün ihtiyaç duyduğu ve duyacağı dönüşüme yardımcı olmak, etkinlikler düzenlemek ve eğitim faaliyetlerinde bulunmak.",
-          "vizyon": "Ülkemiz beşeri ve tabii kaynaklarının rasyonel kullanımını esas alan, sürdürülebilir gıda güvenliğini sağlayan, iklim değişikliklerine uyumlu, rekabetçi, bilgi teknolojileri ile entegre bir tarım sektörünün oluşturulmasına yönelik toplum yararına politika ve stratejiler geliştiren bir düşünce kuruluşu olmak.",
-          "slogan": "Sürdürülebilir Tarım, Güçlü Gelecek",
-          "aciklama": "Tarım; biyoloji, ekonomi ve ekoloji disiplinlerinin kesişimkümesinde yer alan, bütün insanlığı ilgilendiren küresel bir sektördür.",
-          "kurulusun_amaci": "Cumhuriyetimizin 100. kuruluş yılında faaliyetlerine başlayan TARPOL, çiftçilerimiz başta olmak üzere ilgili tüm paydaşların katılımını amaçlayan bir strateji ve politika geliştirme merkezi olarak kurulmuştur."
-        },
-        "yonetim": {
-          "baskan": "Dr. Mehmet Mehdi Eker",
-          "organizasyon_yapisi": {
-            "mutevelli_heyeti": "Vakfın en üst karar organı",
-            "yonetim_kurulu": "İcra organı",
-            "danisma_kurullari": "Uzman danışma organları",
-            "denetim_kurulu": "Mali denetim organı"
-          }
-        },
-        "faaliyet_alanlari": {
-          "calisma_konulari": [
-            "Gıda Güvenliği ve Güvenilirliği",
-            "Sürdürülebilir Tarım ve Gıda Sistemleri", 
-            "Tarımda Sürdürülebilir Kalkınma",
-            "İklim Değişikliği Adaptasyonu",
-            "Tarım Politikaları ve Stratejileri",
-            "Tarımsal Araştırma ve Geliştirme"
-          ],
-          "hizmetler": [
-            "Tarım sektörü ve paydaşların katılımını sağlayan sektörel hizmet platformu",
-            "İnteraktif çözümler sunma",
-            "Politika ve strateji geliştirme",
-            "Araştırma ve raporlama",
-            "Etkinlik ve eğitim organizasyonu"
-          ],
-          "hedef_kitle": [
-            "Çiftçiler",
-            "Üreticiler",
-            "Sivil toplum kuruluşları",
-            "Üniversiteler",
-            "İlgili kamu kuruluşları",
-            "Özel sektör kurum ve kuruluşları",
-            "Tüketiciler",
-            "Uluslararası kuruluşlar"
-          ]
-        },
-        "guncel_faaliyetler": {
-          "son_projeler": [
-            "TARPOL Şap Hastalığı 2025 – Ekonomik Etki ve Ulusal Mücadele Stratejisi Raporu",
-            "Tarım ve gıda ekosistemine ilişkin veri kaynağı oluşturma",
-            "Ordu'da Yağlı Tohumlar Sektörel Ortak Akıl Toplantısı",
-            "Türkiye Yüzyılı'nda Şehir ve Tarım Paneli",
-            "Konya Tarım Diplomasisi Forumu",
-            "İklim Değişikliğinin Etkisinde Gıda Hakkının Geleceği Paneli"
-          ],
-          "tarihsel_calisma": "Tarım'ın 100 Yılı - Cumhuriyet döneminde tarımsal gelişim analizi"
-        },
-        "iletisim": {
-          "adres": "Hacettepe Mahallesi Cingöz Sokak No:10, Altındağ/Ankara",
-          "telefon": "+90 312 443 11 21",
-          "email": "info@tarpol.org.tr",
-          "website": "www.tarpol.org.tr",
-          "sosyal_medya": {
-            "instagram": "@tarpolmerkez",
-            "twitter": "@tarpolmerkez"
-          }
-        },
-        "bagli_platformlar": {
-          "tarpovizyon": {
-            "adi": "TarpoVizyon AI",
-            "aciklama": "TARPOL'ün geliştirdiği tarım ve hayvancılık yapay zeka asistanı",
-            "link": "www.tarpovizyon.com"
-          }
-        }
-      };
-
       // Hamburger Menu Functionality
       const menuToggle = document.getElementById('menu-toggle');
       const historySidebar = document.getElementById('history-sidebar');
@@ -946,20 +836,8 @@
 
         // Kimlik soruları
         if (message.includes('kim') || message.includes('ad') || message.includes('isim')) {
-          return `🤖 **Ben TarpoVizyon AI**
-
-Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanıyım.
-
-🏛️ **Bağlı Kuruluş:** ${tarpolData.bagli_platformlar.tarpovizyon.aciklama}
-
-📋 **TARPOL Hakkında:**
-• **Adı:** ${tarpolData.vakif_bilgileri.adi}
-• **Başkan:** ${tarpolData.yonetim.baskan}
-• **Merkez:** Ankara
-• **Web:** ${tarpolData.iletisim.website}
-
-🌾 Size nasıl yardımcı olabilirim?`;
-        }
+          return 'Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım.';
+          }
           
         // Yaratıcı soruları
         if (message.includes('kim yapt') || message.includes('kim yaratt') || message.includes('kim geliştir') || message.includes('sahibi kim')) {
@@ -985,97 +863,14 @@ Farkım ne?
 Kodumda ileri teknoloji, vizyonumda kırsal kalkınma var. 🌾`;
         }
 
-        // TARPOL hakkında detaylı sorular (Hard Kod Veriler)
-        if (message.includes('tarpol') || message.includes('tarımsal strateji') || 
-            message.includes('politika geliştirme') || message.includes('düşünce kuruluşu')) {
-          
-          // Genel TARPOL bilgisi
-          if (message.includes('nedir') || message.includes('ne') || message.includes('hakkında')) {
-            return `🏛️ **TARPOL - Tarımsal Strateji ve Politika Geliştirme Merkezi**
-
-${tarpolData.vakif_bilgileri.slogan}
-
-📋 **Genel Bilgiler:**
-• **Adı:** ${tarpolData.vakif_bilgileri.adi}
-• **Kuruluş:** ${tarpolData.vakif_bilgileri.kurulus_tarihi}
-• **Başkan:** ${tarpolData.yonetim.baskan}
-• **Merkez:** ${tarpolData.iletisim.adres}
-
-🎯 **Misyon:** ${tarpolData.vakif_bilgileri.misyon}
-
-🔮 **Vizyon:** ${tarpolData.vakif_bilgileri.vizyon}
-
-📧 **İletişim:** ${tarpolData.iletisim.email} | ${tarpolData.iletisim.telefon}
-🌐 **Web:** ${tarpolData.iletisim.website}`;
-          }
-          
-          // Çalışma konuları
-          if (message.includes('çalışma') || message.includes('alan') || message.includes('konu')) {
-            return `📚 **TARPOL Çalışma Konuları:**
-
-${tarpolData.faaliyet_alanlari.calisma_konulari.map((konu, index) => `${index + 1}. ${konu}`).join('\n')}
-
-🔧 **Sunduğu Hizmetler:**
-${tarpolData.faaliyet_alanlari.hizmetler.map((hizmet, index) => `• ${hizmet}`).join('\n')}
-
-👥 **Hedef Kitle:**
-${tarpolData.faaliyet_alanlari.hedef_kitle.map(kitle => `• ${kitle}`).join('\n')}`;
-          }
-          
-          // Son projeler
-          if (message.includes('proje') || message.includes('faaliyet') || message.includes('çalışma')) {
-            return `🚀 **TARPOL Güncel Projeleri (2025):**
-
-${tarpolData.guncel_faaliyetler.son_projeler.map((proje, index) => `${index + 1}. ${proje}`).join('\n')}
-
-📜 **Özel Çalışma:**
-${tarpolData.guncel_faaliyetler.tarihsel_calisma}
-
-🤖 **Bağlı Platform:**
-**${tarpolData.bagli_platformlar.tarpovizyon.adi}** - ${tarpolData.bagli_platformlar.tarpovizyon.aciklama}`;
-          }
-          
-          // İletişim bilgileri
-          if (message.includes('iletişim') || message.includes('adres') || message.includes('telefon')) {
-            return `📞 **TARPOL İletişim Bilgileri:**
-
-📍 **Adres:** ${tarpolData.iletisim.adres}
-☎️ **Telefon:** ${tarpolData.iletisim.telefon}
-📧 **E-posta:** ${tarpolData.iletisim.email}
-🌐 **Web Sitesi:** ${tarpolData.iletisim.website}
-
-📱 **Sosyal Medya:**
-• Instagram: ${tarpolData.iletisim.sosyal_medya.instagram}
-• Twitter: ${tarpolData.iletisim.sosyal_medya.twitter}`;
-          }
-          
-          // Genel cevap
-          return `🏛️ **TARPOL** - ${tarpolData.vakif_bilgileri.aciklama}
-
-${tarpolData.vakif_bilgileri.kurulusun_amaci}
-
-**Başkan:** ${tarpolData.yonetim.baskan}
-**İletişim:** ${tarpolData.iletisim.website}`;
+        // TARPOL hakkında sorular
+        if (message.includes('tarpol') || message.includes('tarımsal strateji')) {
+          return 'TARPOL, tarım, hayvancılık ve gıda güvenliğinde sürdürülebilir stratejiler geliştirmek üzere kurulmuş bir düşünce kuruluşudur. Dr. Mehmet Mehdi Eker başkanlığında, iklim değişikliği ve doğal afetler gibi küresel tehditlere karşı yenilikçi politikalar geliştirir. Ankara\'da faaliyet gösterir.';
         }
 
         // Mehdi Eker hakkında sorular
-        if (message.includes('mehdi eker') || message.includes('eker') || message.includes('başkan')) {
-          return `👨‍💼 **Dr. Mehmet Mehdi Eker - TARPOL Başkanı**
-
-🎓 **Eğitim Geçmişi:**
-• Ankara Üniversitesi Veteriner Fakültesi mezunu
-• Aberdeen Üniversitesi (İskoçya) - Yüksek Lisans
-• Veteriner Hekim ve Tarım Ekonomisti
-
-🏛️ **Siyasi Geçmişi:**
-• Diyarbakır Milletvekili
-• Gıda, Tarım ve Hayvancılık Bakanı
-
-🌾 **TARPOL'deki Rolü:**
-${tarpolData.yonetim.baskan} olarak ${tarpolData.vakif_bilgileri.adi}'ni yönetmektedir.
-
-📍 **Kurumsal Yapı:**
-${Object.entries(tarpolData.yonetim.organizasyon_yapisi).map(([organ, aciklama]) => `• **${organ.replace('_', ' ').toUpperCase()}:** ${aciklama}`).join('\n')}`;
+        if (message.includes('mehdi eker') || message.includes('eker')) {
+          return 'Dr. Mehmet Mehdi Eker, TARPOL\'un Başkanıdır. Veteriner Hekim ve Tarım Ekonomisti olan kendisi, Ankara Üniversitesi Veteriner Fakültesi mezunu olup Aberdeen Üniversitesi\'nde yüksek lisans yapmıştır. Diyarbakır milletvekili ve Gıda, Tarım ve Hayvancılık Bakanı olarak görev yapmıştır.';
         }
 
         // Tarım konuları
