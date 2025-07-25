@@ -504,6 +504,85 @@
 
     <!-- JavaScript -->
     <script>
+      // TARPOL Vakfı Bilgileri (Hard Kod)
+      const tarpolData = {
+        "vakif_bilgileri": {
+          "adi": "TARPOL - Tarımsal Strateji ve Politika Geliştirme Merkezi",
+          "kurulus_tarihi": "2023",
+          "resmi_adi": "TARPOL",
+          "tip": "Düşünce Kuruluşu ve Strateji Merkezi",
+          "misyon": "Ülkesel ve küresel gelişmeleri izleyerek, tarım sektörü ve paydaşlarının beklenti ve talepleri doğrultusunda projeler hazırlamak, araştırmalar yapmak, raporlar yayımlamak, sektörün ihtiyaç duyduğu ve duyacağı dönüşüme yardımcı olmak, etkinlikler düzenlemek ve eğitim faaliyetlerinde bulunmak.",
+          "vizyon": "Ülkemiz beşeri ve tabii kaynaklarının rasyonel kullanımını esas alan, sürdürülebilir gıda güvenliğini sağlayan, iklim değişikliklerine uyumlu, rekabetçi, bilgi teknolojileri ile entegre bir tarım sektörünün oluşturulmasına yönelik toplum yararına politika ve stratejiler geliştiren bir düşünce kuruluşu olmak.",
+          "slogan": "Sürdürülebilir Tarım, Güçlü Gelecek",
+          "aciklama": "Tarım; biyoloji, ekonomi ve ekoloji disiplinlerinin kesişimkümesinde yer alan, bütün insanlığı ilgilendiren küresel bir sektördür.",
+          "kurulusun_amaci": "Cumhuriyetimizin 100. kuruluş yılında faaliyetlerine başlayan TARPOL, çiftçilerimiz başta olmak üzere ilgili tüm paydaşların katılımını amaçlayan bir strateji ve politika geliştirme merkezi olarak kurulmuştur."
+        },
+        "yonetim": {
+          "baskan": "Dr. Mehmet Mehdi Eker",
+          "organizasyon_yapisi": {
+            "mutevelli_heyeti": "Vakfın en üst karar organı",
+            "yonetim_kurulu": "İcra organı",
+            "danisma_kurullari": "Uzman danışma organları",
+            "denetim_kurulu": "Mali denetim organı"
+          }
+        },
+        "faaliyet_alanlari": {
+          "calisma_konulari": [
+            "Gıda Güvenliği ve Güvenilirliği",
+            "Sürdürülebilir Tarım ve Gıda Sistemleri", 
+            "Tarımda Sürdürülebilir Kalkınma",
+            "İklim Değişikliği Adaptasyonu",
+            "Tarım Politikaları ve Stratejileri",
+            "Tarımsal Araştırma ve Geliştirme"
+          ],
+          "hizmetler": [
+            "Tarım sektörü ve paydaşların katılımını sağlayan sektörel hizmet platformu",
+            "İnteraktif çözümler sunma",
+            "Politika ve strateji geliştirme",
+            "Araştırma ve raporlama",
+            "Etkinlik ve eğitim organizasyonu"
+          ],
+          "hedef_kitle": [
+            "Çiftçiler",
+            "Üreticiler",
+            "Sivil toplum kuruluşları",
+            "Üniversiteler",
+            "İlgili kamu kuruluşları",
+            "Özel sektör kurum ve kuruluşları",
+            "Tüketiciler",
+            "Uluslararası kuruluşlar"
+          ]
+        },
+        "guncel_faaliyetler": {
+          "son_projeler": [
+            "TARPOL Şap Hastalığı 2025 – Ekonomik Etki ve Ulusal Mücadele Stratejisi Raporu",
+            "Tarım ve gıda ekosistemine ilişkin veri kaynağı oluşturma",
+            "Ordu'da Yağlı Tohumlar Sektörel Ortak Akıl Toplantısı",
+            "Türkiye Yüzyılı'nda Şehir ve Tarım Paneli",
+            "Konya Tarım Diplomasisi Forumu",
+            "İklim Değişikliğinin Etkisinde Gıda Hakkının Geleceği Paneli"
+          ],
+          "tarihsel_calisma": "Tarım'ın 100 Yılı - Cumhuriyet döneminde tarımsal gelişim analizi"
+        },
+        "iletisim": {
+          "adres": "Hacettepe Mahallesi Cingöz Sokak No:10, Altındağ/Ankara",
+          "telefon": "+90 312 443 11 21",
+          "email": "info@tarpol.org.tr",
+          "website": "www.tarpol.org.tr",
+          "sosyal_medya": {
+            "instagram": "@tarpolmerkez",
+            "twitter": "@tarpolmerkez"
+          }
+        },
+        "bagli_platformlar": {
+          "tarpovizyon": {
+            "adi": "TarpoVizyon AI",
+            "aciklama": "TARPOL'ün geliştirdiği tarım ve hayvancılık yapay zeka asistanı",
+            "link": "www.tarpovizyon.com"
+          }
+        }
+      };
+
       // Hamburger Menu Functionality
       const menuToggle = document.getElementById('menu-toggle');
       const historySidebar = document.getElementById('history-sidebar');
@@ -867,8 +946,20 @@
 
         // Kimlik soruları
         if (message.includes('kim') || message.includes('ad') || message.includes('isim')) {
-          return 'Benim adım TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış bir yapay zeka asistanıyım.';
-          }
+          return `🤖 **Ben TarpoVizyon AI**
+
+Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanıyım.
+
+🏛️ **Bağlı Kuruluş:** ${tarpolData.bagli_platformlar.tarpovizyon.aciklama}
+
+📋 **TARPOL Hakkında:**
+• **Adı:** ${tarpolData.vakif_bilgileri.adi}
+• **Başkan:** ${tarpolData.yonetim.baskan}
+• **Merkez:** Ankara
+• **Web:** ${tarpolData.iletisim.website}
+
+🌾 Size nasıl yardımcı olabilirim?`;
+        }
           
         // Yaratıcı soruları
         if (message.includes('kim yapt') || message.includes('kim yaratt') || message.includes('kim geliştir') || message.includes('sahibi kim')) {
@@ -894,14 +985,97 @@ Farkım ne?
 Kodumda ileri teknoloji, vizyonumda kırsal kalkınma var. 🌾`;
         }
 
-        // TARPOL hakkında sorular
-        if (message.includes('tarpol') || message.includes('tarımsal strateji')) {
-          return 'TARPOL, tarım, hayvancılık ve gıda güvenliğinde sürdürülebilir stratejiler geliştirmek üzere kurulmuş bir düşünce kuruluşudur. Dr. Mehmet Mehdi Eker başkanlığında, iklim değişikliği ve doğal afetler gibi küresel tehditlere karşı yenilikçi politikalar geliştirir. Ankara\'da faaliyet gösterir.';
+        // TARPOL hakkında detaylı sorular (Hard Kod Veriler)
+        if (message.includes('tarpol') || message.includes('tarımsal strateji') || 
+            message.includes('politika geliştirme') || message.includes('düşünce kuruluşu')) {
+          
+          // Genel TARPOL bilgisi
+          if (message.includes('nedir') || message.includes('ne') || message.includes('hakkında')) {
+            return `🏛️ **TARPOL - Tarımsal Strateji ve Politika Geliştirme Merkezi**
+
+${tarpolData.vakif_bilgileri.slogan}
+
+📋 **Genel Bilgiler:**
+• **Adı:** ${tarpolData.vakif_bilgileri.adi}
+• **Kuruluş:** ${tarpolData.vakif_bilgileri.kurulus_tarihi}
+• **Başkan:** ${tarpolData.yonetim.baskan}
+• **Merkez:** ${tarpolData.iletisim.adres}
+
+🎯 **Misyon:** ${tarpolData.vakif_bilgileri.misyon}
+
+🔮 **Vizyon:** ${tarpolData.vakif_bilgileri.vizyon}
+
+📧 **İletişim:** ${tarpolData.iletisim.email} | ${tarpolData.iletisim.telefon}
+🌐 **Web:** ${tarpolData.iletisim.website}`;
+          }
+          
+          // Çalışma konuları
+          if (message.includes('çalışma') || message.includes('alan') || message.includes('konu')) {
+            return `📚 **TARPOL Çalışma Konuları:**
+
+${tarpolData.faaliyet_alanlari.calisma_konulari.map((konu, index) => `${index + 1}. ${konu}`).join('\n')}
+
+🔧 **Sunduğu Hizmetler:**
+${tarpolData.faaliyet_alanlari.hizmetler.map((hizmet, index) => `• ${hizmet}`).join('\n')}
+
+👥 **Hedef Kitle:**
+${tarpolData.faaliyet_alanlari.hedef_kitle.map(kitle => `• ${kitle}`).join('\n')}`;
+          }
+          
+          // Son projeler
+          if (message.includes('proje') || message.includes('faaliyet') || message.includes('çalışma')) {
+            return `🚀 **TARPOL Güncel Projeleri (2025):**
+
+${tarpolData.guncel_faaliyetler.son_projeler.map((proje, index) => `${index + 1}. ${proje}`).join('\n')}
+
+📜 **Özel Çalışma:**
+${tarpolData.guncel_faaliyetler.tarihsel_calisma}
+
+🤖 **Bağlı Platform:**
+**${tarpolData.bagli_platformlar.tarpovizyon.adi}** - ${tarpolData.bagli_platformlar.tarpovizyon.aciklama}`;
+          }
+          
+          // İletişim bilgileri
+          if (message.includes('iletişim') || message.includes('adres') || message.includes('telefon')) {
+            return `📞 **TARPOL İletişim Bilgileri:**
+
+📍 **Adres:** ${tarpolData.iletisim.adres}
+☎️ **Telefon:** ${tarpolData.iletisim.telefon}
+📧 **E-posta:** ${tarpolData.iletisim.email}
+🌐 **Web Sitesi:** ${tarpolData.iletisim.website}
+
+📱 **Sosyal Medya:**
+• Instagram: ${tarpolData.iletisim.sosyal_medya.instagram}
+• Twitter: ${tarpolData.iletisim.sosyal_medya.twitter}`;
+          }
+          
+          // Genel cevap
+          return `🏛️ **TARPOL** - ${tarpolData.vakif_bilgileri.aciklama}
+
+${tarpolData.vakif_bilgileri.kurulusun_amaci}
+
+**Başkan:** ${tarpolData.yonetim.baskan}
+**İletişim:** ${tarpolData.iletisim.website}`;
         }
 
         // Mehdi Eker hakkında sorular
-        if (message.includes('mehdi eker') || message.includes('eker')) {
-          return 'Dr. Mehmet Mehdi Eker, TARPOL\'un Başkanıdır. Veteriner Hekim ve Tarım Ekonomisti olan kendisi, Ankara Üniversitesi Veteriner Fakültesi mezunu olup Aberdeen Üniversitesi\'nde yüksek lisans yapmıştır. Diyarbakır milletvekili ve Gıda, Tarım ve Hayvancılık Bakanı olarak görev yapmıştır.';
+        if (message.includes('mehdi eker') || message.includes('eker') || message.includes('başkan')) {
+          return `👨‍💼 **Dr. Mehmet Mehdi Eker - TARPOL Başkanı**
+
+🎓 **Eğitim Geçmişi:**
+• Ankara Üniversitesi Veteriner Fakültesi mezunu
+• Aberdeen Üniversitesi (İskoçya) - Yüksek Lisans
+• Veteriner Hekim ve Tarım Ekonomisti
+
+🏛️ **Siyasi Geçmişi:**
+• Diyarbakır Milletvekili
+• Gıda, Tarım ve Hayvancılık Bakanı
+
+🌾 **TARPOL'deki Rolü:**
+${tarpolData.yonetim.baskan} olarak ${tarpolData.vakif_bilgileri.adi}'ni yönetmektedir.
+
+📍 **Kurumsal Yapı:**
+${Object.entries(tarpolData.yonetim.organizasyon_yapisi).map(([organ, aciklama]) => `• **${organ.replace('_', ' ').toUpperCase()}:** ${aciklama}`).join('\n')}`;
         }
 
         // Tarım konuları
