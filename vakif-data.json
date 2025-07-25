@@ -1,0 +1,64 @@
+{
+  "vakif_bilgileri": {
+    "adi": "Tarım ve Hayvancılık Vakfı",
+    "kurulus_tarihi": "2020",
+    "misyon": "Sürdürülebilir tarım ve hayvancılık için yenilikçi çözümler geliştirmek",
+    "vizyon": "Türkiye'nin önde gelen tarım teknolojileri vakfı olmak",
+    "degerler": [
+      "Sürdürülebilirlik",
+      "İnovasyon",
+      "Şeffaflık",
+      "Toplumsal Fayda"
+    ]
+  },
+  "yonetim": {
+    "kurucu": "Dr. Mehmet Mehdi Eker",
+    "baskan": "Veteriner Hekim Öner Özbey",
+    "yonetim_kurulu": [
+      "Dr. Mehmet Mehdi Eker - Başkan",
+      "Veteriner Hekim Öner Özbey - Genel Sekreter",
+      "Prof. Dr. Tarım Uzmanı - Bilimsel Danışman"
+    ]
+  },
+  "faaliyet_alanlari": {
+    "egitim": [
+      "Çiftçi eğitim programları",
+      "Teknoloji transferi",
+      "Sertifika programları"
+    ],
+    "arastirma": [
+      "Tarım teknolojileri araştırması",
+      "Sürdürülebilir tarım projeleri",
+      "İklim değişikliği adaptasyonu"
+    ],
+    "projeler": [
+      "Tarım 5.0 Dijital Dönüşüm",
+      "Akıllı Tarım Sistemleri",
+      "Organik Tarım Geliştirme"
+    ]
+  },
+  "iletisim": {
+    "adres": "Ankara, Türkiye",
+    "telefon": "+90 xxx xxx xx xx",
+    "email": "info@tarpovizyon.org",
+    "website": "www.tarpovizyon.org"
+  },
+  "guncel_projeler": [
+    {
+      "adi": "Dijital Çiftçi Projesi",
+      "aciklama": "Çiftçilere dijital teknolojiler öğretme",
+      "durum": "Aktif"
+    },
+    {
+      "adi": "Sürdürülebilir Tarım",
+      "aciklama": "Çevre dostu tarım yöntemleri",
+      "durum": "Planlama Aşamasında"
+    }
+  ],
+  "istatistikler": {
+    "egitilen_ciftci": 1500,
+    "tamamlanan_proje": 25,
+    "calisan_sayisi": 45,
+    "yillik_butce": "5M TL"
+  }
+} 
