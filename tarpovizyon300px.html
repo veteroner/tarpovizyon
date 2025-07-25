@@ -304,6 +304,35 @@
         .text-sm {
           font-size: 0.8rem;
         }
+        
+        /* Header düzenlemeleri - logo ve yazı düzeni */
+        .bg-gradient-to-r.from-primary.to-secondary h2 {
+          font-size: 0.95rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        .bg-gradient-to-r.from-primary.to-secondary p {
+          font-size: 0.7rem !important;
+          line-height: 1 !important;
+        }
+        
+        /* Çöp kutusu ve butonlar için daha iyi düzen */
+        #clear-chat {
+          padding: 6px !important;
+          min-width: 36px !important;
+          min-height: 36px !important;
+        }
+        
+        #clear-history {
+          padding: 4px !important;
+          min-width: 28px !important;
+          min-height: 28px !important;
+        }
+        
+        /* Mode indicator mobilde gizle */
+        #mode-indicator {
+          display: none !important;
+        }
       }
     </style>
 </head>
@@ -316,30 +345,30 @@
         <div class="h-full">
           <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden ai-glow h-full flex flex-col">
             <!-- Chat Header -->
-            <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-r from-primary to-secondary p-4 text-white flex-shrink-0">
+              <div class="flex items-center justify-between min-h-[60px]">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
                   <!-- Hamburger Menu Button (Mobile Only) -->
-                  <button id="menu-toggle" class="md:hidden p-2 hover:bg-white/20 rounded-lg transition-colors" title="Menü">
-                    <i class="fas fa-bars"></i>
+                  <button id="menu-toggle" class="md:hidden p-1.5 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" title="Menü">
+                    <i class="fas fa-bars text-sm"></i>
                   </button>
-                  <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
-                    <img src="tarpol logo.png" alt="TARPOL Logo" class="w-8 h-8 object-contain">
+                  <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg flex-shrink-0">
+                    <img src="tarpol logo.png" alt="TARPOL Logo" class="w-10 h-10 object-contain">
                   </div>
-                  <div>
-                    <h2 class="text-base font-bold" style="font-size: 1rem;">TarpoVizyon AI</h2>
-                    <p class="text-white/80 text-sm">Tarım ve Hayvancılık AI Uzmanı</p>
+                  <div class="min-w-0 flex-1">
+                    <h2 class="text-lg font-bold leading-tight whitespace-nowrap">TarpoVizyon AI</h2>
+                    <p class="text-white/80 text-xs leading-tight">Tarım ve Hayvancılık AI Uzmanı</p>
                   </div>
                 </div>
-                <div class="flex items-center gap-3">
-                  <div id="mode-indicator">
-                    <div class="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
-                      <i class="fas fa-leaf"></i>
-                      <span>Tarım Modu</span>
+                <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                  <div id="mode-indicator" class="hidden sm:block">
+                    <div class="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-xs font-medium">
+                      <i class="fas fa-leaf text-xs"></i>
+                      <span class="text-xs">Tarım</span>
                     </div>
                   </div>
-                  <button id="clear-chat" class="p-2 hover:bg-white/20 rounded-lg transition-colors" title="Sohbeti Temizle">
-                    <i class="fas fa-trash-alt"></i>
+                  <button id="clear-chat" class="p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0" title="Sohbeti Temizle">
+                    <i class="fas fa-trash-alt text-sm"></i>
                   </button>
                 </div>
               </div>
@@ -393,31 +422,33 @@
       </div>
       
       <!-- Soru/Cevap Geçmiş Paneli -->
-      <div id="history-sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex fixed md:relative inset-y-0 right-0 z-40 md:z-auto">
+      <div id="history-sidebar" class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex fixed md:relative inset-y-0 right-0 z-50 md:z-auto">
         <!-- Mobile Overlay -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 md:hidden hidden pointer-events-none"></div>
         <!-- Geçmiş Header -->
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="p-3 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sohbet Geçmişi</h3>
-            <div class="flex items-center gap-2">
+            <div class="min-w-0 flex-1">
+              <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 leading-tight">Sohbet Geçmişi</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">Son soru ve cevaplarınız</p>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0 ml-2">
               <!-- Close Button (Mobile Only) -->
-              <button id="close-sidebar" class="md:hidden p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" title="Kapat">
-                <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
+              <button id="close-sidebar" class="md:hidden p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" title="Kapat">
+                <i class="fas fa-times text-xs text-gray-500 dark:text-gray-400"></i>
               </button>
-              <button id="clear-history" class="text-gray-400 hover:text-red-500 transition-colors" title="Geçmişi Temizle">
-                <i class="fas fa-trash text-sm"></i>
+              <button id="clear-history" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600" title="Geçmişi Temizle">
+                <i class="fas fa-trash text-xs"></i>
               </button>
             </div>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Son soru ve cevaplarınız</p>
-              </div>
+        </div>
 
         <!-- Geçmiş Listesi -->
-        <div class="flex-1 overflow-y-auto p-4" id="chat-history">
-          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-            <i class="fas fa-history text-2xl mb-2"></i>
-            <p class="text-sm">Henüz sohbet geçmişi yok</p>
+        <div class="flex-1 overflow-y-auto p-3" id="chat-history">
+          <div class="text-center py-6 text-gray-500 dark:text-gray-400">
+            <i class="fas fa-history text-xl mb-2"></i>
+            <p class="text-xs">Henüz sohbet geçmişi yok</p>
             </div>
         </div>
         
