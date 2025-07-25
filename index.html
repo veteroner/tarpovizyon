@@ -399,6 +399,18 @@
     </div>
     
     <script>
+        // Mobil Cihaz Kontrolü ve Yönlendirme
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                   (window.innerWidth <= 768 && window.innerHeight <= 1024);
+        }
+        
+        // Mobil cihazlarda otomatik yönlendirme
+        if (isMobileDevice() && window.location.pathname === '/index.html' || window.location.pathname === '/') {
+            // Mobil arayüz sayfasına yönlendir
+            window.location.href = 'mobile.html';
+        }
+        
         // Mobile Menu Functionality
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
