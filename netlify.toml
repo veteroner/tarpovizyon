@@ -15,6 +15,18 @@
   to = "/embed.html"
   status = 200
 
+# Mobil embed sayfası yönlendirmesi
+[[redirects]]
+  from = "/mobile-embed"
+  to = "/mobile-embed.html"
+  status = 200
+
+# Mobil kısa link
+[[redirects]]
+  from = "/m"
+  to = "/mobile-embed.html"
+  status = 200
+
 # Gemini API proxy route
 [[redirects]]
   from = "/api/gemini/chat"
@@ -65,6 +77,20 @@
   for = "/embed/*"
   [headers.values]
     X-Frame-Options = ""
+
+# Mobil embed için özel header
+[[headers]]
+  for = "/mobile-embed.html"
+  [headers.values]
+    X-Frame-Options = ""
+    Content-Security-Policy = "frame-ancestors *"
+
+# Mobil kısa link için
+[[headers]]
+  for = "/m"
+  [headers.values]
+    X-Frame-Options = ""
+    Content-Security-Policy = "frame-ancestors *"
 
 # API fonksiyonları için CORS
 [[headers]]
