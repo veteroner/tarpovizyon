@@ -3,7 +3,25 @@
   publish = "."
   functions = "netlify/functions"
 
-# Simple API proxy route for the app (frontend calls /api/chat)
+# Ana sayfa yönlendirmesi
+[[redirects]]
+  from = "/"
+  to = "/tarpovizyon.html"
+  status = 200
+
+# Gemini API proxy route
+[[redirects]]
+  from = "/api/gemini/chat"
+  to = "/.netlify/functions/gemini-proxy"
+  status = 200
+
+# Mistral API proxy route (eski versiyon için)
+[[redirects]]
+  from = "/api/mistral/chat"
+  to = "/.netlify/functions/mistral-proxy"
+  status = 200
+
+# Basit API proxy route
 [[redirects]]
   from = "/api/chat"
   to = "/.netlify/functions/gemini-proxy"
@@ -15,6 +33,35 @@
   to = "/.netlify/functions/tts-proxy"
   status = 200
 
-# Enable CORS for the function if needed from other origins
+# 404 sayfası için yönlendirme
+[[redirects]]
+  from = "/*"
+  to = "/tarpovizyon.html"
+  status = 404
+
+# CORS ve güvenlik başlıkları
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# API fonksiyonları için CORS
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Functions konfigürasyonu
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["node-fetch"]
+
+# Environment variables için template
+# Netlify Dashboard'da şunları ekleyin:
+# GEMINI_API_KEY = your_gemini_api_key_here
+# HUGGING_FACE_API_KEY = your_hugging_face_api_key_here
