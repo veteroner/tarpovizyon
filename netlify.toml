@@ -58,10 +58,7 @@
   status = 404
 
 # Minimal güvenlik headers - iframe desteği için
-[[headers]]
-  for = "/tarpovizyon.html"
-  [headers.values]
-    X-Frame-Options = "SAMEORIGIN"
+# /tarpovizyon.html için header yok (iframe izni için)
 
 # Embed sayfaları için header yok (iframe izni)
 # /mobile-embed.html, /embed.html, /widget.html için header tanımlanmadı

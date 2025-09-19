@@ -8,13 +8,11 @@
 /widget.html
   # X-Frame-Options header'ını tamamen kaldır
 
+/tarpovizyon.html
+  # X-Frame-Options header'ını tamamen kaldır (iframe desteği için)
+
 # API endpoints
 /api/*
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
   Access-Control-Allow-Headers: Content-Type, Authorization
-
-# Diğer sayfalarda normal güvenlik
-/tarpovizyon.html
-  X-Frame-Options: SAMEORIGIN
-  X-Content-Type-Options: nosniff
