@@ -238,8 +238,15 @@
         
         /* Chat header'da daha az padding */
         .bg-gradient-to-r.from-primary.to-secondary {
-          padding: 1rem 1.5rem;
+          padding: 1rem 1.25rem;
         }
+
+        /* Header öğelerini sıkıştır */
+        #chat-header .flex.items-center.gap-3 { gap: 0.5rem; }
+        #chat-title { font-size: 1.05rem; line-height: 1.25rem; white-space: nowrap; }
+        #chat-subtitle { font-size: 0.8rem; }
+        #chat-logo { width: 2.25rem; height: 2.25rem; padding: 0.25rem; }
+        #chat-logo img { width: 1.25rem; height: 1.25rem; }
         
         /* Chat mesajlarında daha az padding */
         #chat-messages {
@@ -251,11 +258,12 @@
           padding: 1rem;
         }
         
-        /* Butonları daha büyük yap (touch-friendly) */
-        button {
-          min-height: 44px;
-          min-width: 44px;
-        }
+  /* Butonları ekrana sığacak şekilde ayarla (touch-friendly) */
+  button { min-height: 44px; min-width: 44px; }
+  #chat-form { gap: 0.5rem; }
+  #user-input { padding: 0.5rem 0.75rem; font-size: 0.95rem; }
+  #voice-button, #send-button { min-width: 40px; min-height: 40px; padding: 0.5rem 0.6rem; border-radius: 0.75rem; }
+  #voice-button i, #send-button i { font-size: 1rem; }
         
         /* Voice modal'ı daha küçük yap */
         #voice-modal .bg-white {
@@ -269,14 +277,14 @@
         #history-sidebar {
           width: 90vw;
         }
-        
-        .text-xl {
-          font-size: 1.1rem;
-        }
-        
-        .text-sm {
-          font-size: 0.8rem;
-        }
+        /* Başlığı daha da küçült, alt başlığı gizle */
+        #chat-title { font-size: 0.95rem; line-height: 1.1rem; }
+        #chat-subtitle { display: none; }
+        #chat-logo { width: 2rem; height: 2rem; }
+        #chat-logo img { width: 1rem; height: 1rem; }
+        #user-input { font-size: 0.9rem; padding: 0.45rem 0.6rem; }
+        #voice-button, #send-button { min-width: 36px; min-height: 36px; padding: 0.45rem 0.5rem; }
+        #voice-button i, #send-button i { font-size: 0.95rem; }
       }
     </style>
 </head>
@@ -289,19 +297,19 @@
         <div class="h-full">
           <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden ai-glow h-full flex flex-col">
             <!-- Chat Header -->
-            <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
+            <div id="chat-header" class="bg-gradient-to-r from-primary to-secondary p-6 text-white flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <!-- Hamburger Menu Button (Mobile Only) -->
                   <button id="menu-toggle" class="md:hidden p-2 hover:bg-white/20 rounded-lg transition-colors" title="Menü">
                     <i class="fas fa-bars"></i>
                   </button>
-                  <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
+                  <div id="chat-logo" class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center p-2 shadow-lg">
                     <img src="tarpol logo.png" alt="TARPOL Logo" class="w-8 h-8 object-contain">
                   </div>
                   <div>
-                    <h2 class="text-xl font-bold">TarpoVizyon AI</h2>
-                    <p class="text-white/80 text-sm">Tarım Uzmanı Yapay Zeka</p>
+                    <h2 id="chat-title" class="text-xl font-bold">TarpoVizyon AI</h2>
+                    <p id="chat-subtitle" class="text-white/80 text-sm">Tarım Uzmanı Yapay Zeka</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
