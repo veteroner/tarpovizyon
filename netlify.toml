@@ -66,30 +66,28 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# İframe entegrasyonu için özel header
+# İframe entegrasyonu için özel header - Ana sayfa
 [[headers]]
   for = "/tarpovizyon.html"
   [headers.values]
-    X-Frame-Options = "ALLOWALL"
+    X-Frame-Options = "SAMEORIGIN"
 
-# Embed versiyonu için tamamen açık
+# Embed sayfaları için iframe desteği
 [[headers]]
-  for = "/embed/*"
+  for = "/embed.html"
   [headers.values]
-    X-Frame-Options = ""
+    Content-Security-Policy = "frame-ancestors *"
 
-# Mobil embed için özel header
+# Mobil embed için iframe desteği
 [[headers]]
   for = "/mobile-embed.html"
   [headers.values]
-    X-Frame-Options = ""
     Content-Security-Policy = "frame-ancestors *"
 
-# Mobil kısa link için
+# Embed klasörü için genel iframe desteği
 [[headers]]
-  for = "/m"
+  for = "/embed/*"
   [headers.values]
-    X-Frame-Options = ""
     Content-Security-Policy = "frame-ancestors *"
 
 # API fonksiyonları için CORS
