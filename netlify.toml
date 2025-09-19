@@ -27,6 +27,18 @@
   to = "/widget.html"
   status = 200
 
+# İframe kılavuzu yönlendirmesi
+[[redirects]]
+  from = "/iframe-guide"
+  to = "/iframe-guide.html"
+  status = 200
+
+# İframe yardım sayfası
+[[redirects]]
+  from = "/help"
+  to = "/iframe-guide.html"
+  status = 200
+
 # Gemini API proxy route
 [[redirects]]
   from = "/api/gemini/chat"
