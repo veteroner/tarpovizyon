@@ -1,0 +1,20 @@
+[build]
+  command = ""
+  publish = "."
+  functions = "netlify/functions"
+
+# Simple API proxy route for the app (frontend calls /api/chat)
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/gemini-proxy"
+  status = 200
+
+# TTS API proxy route
+[[redirects]]
+  from = "/api/tts"
+  to = "/.netlify/functions/tts-proxy"
+  status = 200
+
+# Enable CORS for the function if needed from other origins
+[functions]
+  node_bundler = "esbuild"

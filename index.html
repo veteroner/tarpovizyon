@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Tarım ve Hayvancılık AI Uzmanı</title>
+    <meta name="description" content="TarpoVizyon AI - Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanı">
+    <meta name="keywords" content="tarım, hayvancılık, AI, yapay zeka, veteriner, çiftçilik">
+    <meta name="author" content="Veteriner Hekim Öner Özbey">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="TarpoVizyon AI">
+    <meta property="og:description" content="Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanı">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tarpovizyon-ai.netlify.app">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Safari Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TarpoVizyon AI">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%2348bb78'/><text x='96' y='130' font-size='120' text-anchor='middle' fill='white'>🌾</text></svg>">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#48bb78">
+    <meta name="msapplication-TileImage" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%2348bb78'/><text x='96' y='130' font-size='120' text-anchor='middle' fill='white'>🌾</text></svg>">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#48bb78">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 100%;
+            margin: 1rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #4a5568;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+            margin-bottom: 2rem;
+            min-width: 200px;
+            cursor: pointer;
+        }
+        
+        .btn:hover, .btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+            outline: none;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .features {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .feature {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #48bb78;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature p {
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            color: #718096;
+            font-size: 0.8rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Small Mobile Styles */
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+            }
+            .feature {
+                padding: 1rem;
+            }
+            .feature h3 {
+                font-size: 1rem;
+            }
+            .feature p {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Mobile Menu Styles */
+        #mobile-menu-btn {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        #mobile-menu {
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hide mobile menu button on larger screens */
+        @media (min-width: 768px) {
+            #mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        /* Dark mode mobile menu */
+        @media (prefers-color-scheme: dark) {
+            #mobile-menu {
+                background: #1a202c;
+            }
+            
+            #mobile-menu-btn {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+        
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                padding: 3rem;
+            }
+            
+            .logo {
+                font-size: 3.5rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                font-size: 1.1rem;
+                padding: 1.2rem 2.5rem;
+            }
+            
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 800px;
+            }
+            
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Touch Friendly */
+        @media (hover: none) and (pointer: coarse) {
+            .btn {
+                min-height: 48px;
+                min-width: 240px;
+            }
+            
+            .feature {
+                padding: 2rem;
+            }
+        }
+        
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: rgba(26, 32, 44, 0.95);
+                color: #e2e8f0;
+            }
+            
+            h1 {
+                color: #f7fafc;
+            }
+            
+            .subtitle {
+                color: #cbd5e0;
+            }
+            
+            .feature {
+                background: #2d3748;
+                border-left-color: #48bb78;
+            }
+            
+            .feature h3 {
+                color: #f7fafc;
+            }
+            
+            .feature p {
+                color: #cbd5e0;
+            }
+            
+            .footer {
+                color: #a0aec0;
+                border-top-color: #4a5568;
+            }
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 md:hidden bg-white/20 backdrop-blur-sm text-white p-3 rounded-xl shadow-lg transition-all duration-300" aria-label="Menü">
+        <i class="fas fa-bars text-lg"></i>
+    </button>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-80 bg-white dark:bg-gray-800 transform -translate-x-full transition-transform duration-300 z-50 shadow-xl">
+        <div class="p-6">
+            <!-- Menu Header -->
+            <div class="flex items-center justify-end mb-6">
+                <button id="close-menu" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
+                </button>
+            </div>
+
+
+
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1>TarpoVizyon AI</h1>
+        <p class="subtitle">Tarım ve Hayvancılık AI Uzmanı</p>
+        
+        <a href="tarpovizyon.html" class="btn" aria-label="AI Asistanına Başla">
+            🚀 AI Asistanına Başla
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="Bitki">🌱</span>
+                    Tarım Uzmanlığı
+                </h3>
+                <p>Bitkisel üretim, hastalık mücadelesi ve sürdürülebilir tarım konularında uzman bilgiler</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="İnek">🐄</span>
+                    Hayvancılık
+                </h3>
+                <p>Beslenme, hastalıklar, verim artırma ve mera yönetimi konularında profesyonel öneriler</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="Hedef">🎯</span>
+                    Yaratıcı Mod
+                </h3>
+                <p>Herhangi bir konuda detaylı bilgi ve profesyonel yanıtlar için yaratıcı mod</p>
+            </div>
+            <div class="feature">
+                <h3>
+                    <span role="img" aria-label="Mikrofon">🎤</span>
+                    Sesli Asistan
+                </h3>
+                <p>Sesli komutlarla kolay kullanım ve ElevenLabs entegrasyonu ile doğal ses</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>TARPOL tarafından geliştirildi</p>
+        </div>
+    </div>
+    
+    <script>
+        // Mobil Cihaz Kontrolü ve Yönlendirme
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                   (window.innerWidth <= 768 && window.innerHeight <= 1024);
+        }
+        
+        // Mobil cihazlarda otomatik yönlendirme
+        if (isMobileDevice() && window.location.pathname === '/index.html' || window.location.pathname === '/') {
+            // Mobil arayüz sayfasına yönlendir
+            window.location.href = 'mobile.html';
+        }
+        
+        // Mobile Menu Functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const closeMenuBtn = document.getElementById('close-menu');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Menü açma
+        function openMobileMenu() {
+            mobileMenu.classList.add('open');
+            mobileMenuOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Menü kapatma
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('open');
+            mobileMenuOverlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        mobileMenuBtn?.addEventListener('click', openMobileMenu);
+        closeMenuBtn?.addEventListener('click', closeMobileMenu);
+        mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+
+        // Escape tuşu ile menü kapatma
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+                closeMobileMenu();
+            }
+        });
+
+        // Tema değiştirme
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+            updateThemeIcon();
+        }
+
+        // Tema ikonu güncelleme
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = themeToggleBtn?.querySelector('i');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun text-yellow-500' : 'fas fa-moon text-purple-500';
+            }
+            const text = themeToggleBtn?.querySelector('span');
+            if (text) {
+                text.textContent = isDark ? 'Açık Tema' : 'Karanlık Tema';
+            }
+        }
+
+        // Tema başlangıç durumu
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcon();
+        }
+
+        themeToggleBtn?.addEventListener('click', toggleTheme);
+        initTheme();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button
+            const installBtn = document.createElement('button');
+            installBtn.innerHTML = '📱 Uygulamayı Yükle';
+            installBtn.className = 'btn install-btn';
+            installBtn.style.marginLeft = '1rem';
+            installBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            
+            installBtn.addEventListener('click', async () => {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                installBtn.remove();
+            });
+            
+            document.querySelector('.container').insertBefore(installBtn, document.querySelector('.features'));
+        });
+
+        // Touch gestures for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+        
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            // Swipe right to go to AI page
+            if (deltaX > 100 && Math.abs(deltaY) < 100) {
+                window.location.href = 'tarpovizyon.html';
+            }
+        }, false);
+
+        // Viewport height fix for mobile browsers
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+
+        // Performance optimization
+        const features = document.querySelectorAll('.feature');
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        features.forEach(feature => {
+            feature.style.opacity = '0';
+            feature.style.transform = 'translateY(20px)';
+            feature.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(feature);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const btn = document.querySelector('.btn');
+                if (btn && document.activeElement === btn) {
+                    e.preventDefault();
+                    btn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

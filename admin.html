@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Admin Panel Güvenlik -->
+    <script>
+        // Basit erişim kontrolü
+        (function() {
+            const isAuthorized = sessionStorage.getItem('tarpovizyon_admin_access') === 'true';
+            
+            if (!isAuthorized) {
+                // URL'den doğrudan gelip gelmediğini kontrol et
+                const referrer = document.referrer;
+                const isDirectAccess = !referrer || !referrer.includes(window.location.hostname);
+                
+                if (isDirectAccess) {
+                    // Doğrudan erişim - admin erişimi onayla
+                    sessionStorage.setItem('tarpovizyon_admin_access', 'true');
+                } else {
+                    // Ana sayfadan gelmeye çalışıyor - geri yönlendir
+                    window.location.href = 'index.html';
+                    return;
+                }
+            }
+        })();
+    </script>
+    
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#22c55e',
+              secondary: '#16a34a',
+              accent: '#15803d',
+              dark: '#0f0f23',
+              light: '#f8fafc'
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            }
+          },
+        },
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      .admin-card {
+        transition: all 0.3s ease;
+      }
+      .admin-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.15);
+      }
+      .status-online { color: #22c55e; }
+      .status-offline { color: #ef4444; }
+      .status-idle { color: #f59e0b; }
+      
+      /* Grafik animasyonlarını devre dışı bırak */
+      canvas {
+        animation: none !important;
+        transition: none !important;
+      }
+      
+      /* Chart.js animasyonlarını devre dışı bırak */
+      .chart-container {
+        animation: none !important;
+        transition: none !important;
+      }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-dark text-gray-900 dark:text-gray-100 font-sans">
+    <!-- Login Form -->
+    <div id="login-container" class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-dark">
+      <form id="login-form" class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-sm">
+        <h2 class="text-2xl font-bold mb-6 text-center text-primary">Admin Girişi</h2>
+        <div class="mb-4">
+          <label for="username" class="block text-sm font-medium mb-2">Kullanıcı Adı</label>
+          <input type="text" id="username" name="username" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary" required>
+        </div>
+        <div class="mb-6">
+          <label for="password" class="block text-sm font-medium mb-2">Şifre</label>
+          <input type="password" id="password" name="password" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary" required>
+        </div>
+        <div id="login-error" class="text-red-500 text-sm mb-4 hidden">Kullanıcı adı veya şifre yanlış!</div>
+        <button type="submit" class="w-full bg-primary text-white py-2 rounded font-bold hover:bg-secondary transition">Giriş Yap</button>
+      </form>
+    </div>
+
+    <!-- Admin Panel (gizli, girişten sonra açılır) -->
+    <div id="admin-panel" style="display:none">
+      <!-- Header -->
+      <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
+                          <i class="fas fa-leaf text-white text-lg"></i>
+                      </div>
+                      <div>
+                          <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">TarpoVizyon AI</h1>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">Admin Panel</p>
+                      </div>
+                  </div>
+                  <div class="flex items-center gap-4">
+                      <div class="text-right">
+                          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Öner Özbey</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Sistem Yöneticisi</p>
+                      </div>
+                      <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                          <i class="fas fa-user text-white text-sm"></i>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </header>
+
+      <!-- Navigation -->
+      <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div class="px-6">
+              <div class="flex space-x-8">
+                  <button class="nav-tab active px-4 py-3 text-sm font-medium border-b-2 border-primary text-primary" data-tab="dashboard">
+                      <i class="fas fa-chart-dashboard mr-2"></i>Dashboard
+                  </button>
+                  <button class="nav-tab px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="chats">
+                      <i class="fas fa-messages mr-2"></i>Sohbet Kayıtları
+                  </button>
+                  <button class="nav-tab px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="analytics">
+                      <i class="fas fa-chart-line mr-2"></i>Analitik
+                  </button>
+                  <button class="nav-tab px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="voice">
+                      <i class="fas fa-microphone mr-2"></i>Ses Ayarları
+                  </button>
+                  <button class="nav-tab px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="system">
+                      <i class="fas fa-cog mr-2"></i>Sistem Durumu
+                  </button>
+              </div>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-6">
+          <!-- Dashboard Tab -->
+          <div id="dashboard-tab" class="tab-content">
+              <!-- Stats Cards -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                      <div class="flex items-center justify-between">
+                          <div>
+                              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Toplam Sohbet</p>
+                              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="total-chats">0</p>
+                          </div>
+                          <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                              <i class="fas fa-comment text-primary text-xl"></i>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                      <div class="flex items-center justify-between">
+                          <div>
+                              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif Kullanıcı</p>
+                              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="active-users">0</p>
+                          </div>
+                          <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                              <i class="fas fa-users text-blue-500 text-xl"></i>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                      <div class="flex items-center justify-between">
+                          <div>
+                              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">API Çağrısı</p>
+                              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="api-calls">0</p>
+                          </div>
+                          <div class="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                              <i class="fas fa-plug text-yellow-500 text-xl"></i>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                      <div class="flex items-center justify-between">
+                          <div>
+                              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Sistem Durumu</p>
+                              <p class="text-2xl font-bold status-online" id="system-status">Çevrimiçi</p>
+                          </div>
+                          <div class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
+                              <i class="fas fa-heart text-green-500 text-xl"></i>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Charts Row -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm h-64 flex flex-col">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Günlük Sohbet Trendi</h3>
+                      <div class="flex-1 flex items-center justify-center">
+                        <canvas id="chatTrendChart" class="w-full h-full" style="max-height: 100%;" height="200"></canvas>
+                      </div>
+                  </div>
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm h-64 flex flex-col">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Soru Kategorileri</h3>
+                      <div class="flex-1 flex items-center justify-center">
+                        <canvas id="categoryChart" class="w-full h-full" style="max-height: 100%;" height="200"></canvas>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Recent Activity -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Son Aktiviteler</h3>
+                  <div class="space-y-4" id="recent-activities">
+                      <!-- Activities will be populated by JavaScript -->
+                  </div>
+              </div>
+          </div>
+          <!-- ...diğer tab içerikleri ve kodlar eksiksiz şekilde burada olacak... -->
+      </main>
+    </div>
+
+    <script>
+      // Giriş formu kontrolü
+      document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+        var errorDiv = document.getElementById('login-error');
+        if(username === 'veteroner' && password === 'Oner2621') {
+          document.getElementById('login-container').style.display = 'none';
+          document.getElementById('admin-panel').style.display = 'block';
+          document.body.style.overflow = 'auto';
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+          
+          // Sohbet kayıtlarını hemen yükle
+          loadChatLogsFromStorage();
+          loadTabData('dashboard');
+        } else {
+          errorDiv.style.display = 'block';
+        }
+      });
+    </script>
+                <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif Kullanıcı</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="active-users">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">API Çağrısı</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="api-calls">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-plug text-yellow-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Sistem Durumu</p>
+                            <p class="text-2xl font-bold status-online" id="system-status">Çevrimiçi</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heart text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Günlük Sohbet Trendi</h3>
+                    <canvas id="chatTrendChart" height="200"></canvas>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Soru Kategorileri</h3>
+                    <canvas id="categoryChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Son Aktiviteler</h3>
+                <div class="space-y-4" id="recent-activities">
+                    <!-- Activities will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Logs Tab -->
+        <div id="chats-tab" class="tab-content hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                <!-- Header -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Çalışma Alanı Sohbetleri</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Bunlar, kullanıcılar tarafından gönderilme ve oluşturulma tarihlerine göre sıralanan tüm kayıtlı sohbetler ve mesajlardır.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button id="export-chats" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
+                                <i class="fas fa-download"></i>
+                                Dışa Aktar
+                            </button>
+                            <button id="clear-all-chats" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2">
+                                <i class="fas fa-trash"></i>
+                                Clear Chats
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Tarih:</label>
+                            <input type="date" id="date-filter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Arama:</label>
+                            <input type="text" id="search-filter" placeholder="Soru veya cevap ara..." class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800">
+                        </div>
+                        <button id="apply-filters" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
+                            <i class="fas fa-filter mr-2"></i>Filtrele
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">GÖNDEREN</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ÇALIŞMA ALANI</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">KOMUT (PROMPT)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">YANIT</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">GÖNDERİLME ZAMANI</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">İŞLEMLER</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chat-logs-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Chat logs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700 dark:text-gray-300">
+                            <span id="pagination-info">1-10 arası gösteriliyor (toplam 0 kayıt)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="prev-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50" disabled>
+                                Önceki
+                            </button>
+                            <span id="current-page" class="px-3 py-1 bg-primary text-white rounded text-sm">1</span>
+                            <button id="next-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50" disabled>
+                                Sonraki
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">En Çok Sorulan Sorular</h3>
+                    <div class="space-y-4" id="popular-questions">
+                        <!-- Popular questions will be populated -->
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Yanıt Süreleri</h3>
+                    <canvas id="responseTimeChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Saat Bazında Kullanım</h3>
+                    <canvas id="hourlyUsageChart" height="200"></canvas>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Model Kullanım İstatistikleri</h3>
+                    <div class="space-y-3" id="model-stats">
+                        <!-- Model stats will be populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Settings Tab -->
+        <div id="voice-tab" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Current Voice Profile -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Aktif Ses Profili</h3>
+                    <div class="space-y-4" id="current-voice-profile">
+                        <div class="flex items-center gap-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
+                            <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                                <i class="fas fa-volume-up text-white text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 dark:text-gray-100">Varsayılan TTS Sesi</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Sistem varsayılan Türkçe kadın sesi</p>
+                            </div>
+                            <button onclick="testCurrentVoice()" class="px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">
+                                <i class="fas fa-play mr-1"></i>Test Et
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Upload -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Özel Ses Yükleme</h3>
+                    <div class="space-y-4">
+                        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center" id="voice-upload-area">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                            <p class="text-gray-600 dark:text-gray-300 mb-2">Ses dosyasını buraya sürükleyin veya seçin</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">MP3, WAV, M4A formatları desteklenir</p>
+                            <input type="file" id="voice-file-input" accept=".mp3,.wav,.m4a" class="hidden">
+                            <button onclick="document.getElementById('voice-file-input').click()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                                <i class="fas fa-folder-open mr-2"></i>Dosya Seç
+                            </button>
+                        </div>
+                        
+                        <div id="voice-upload-form" class="hidden space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ses Profili Adı</label>
+                                <input type="text" id="voice-name" placeholder="Öner Özbey Sesi" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Açıklama</label>
+                                <textarea id="voice-description" placeholder="Bu ses profili hakkında kısa açıklama..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 h-20"></textarea>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="uploadVoiceFile()" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                                    <i class="fas fa-upload mr-2"></i>Yükle
+                                </button>
+                                <button onclick="cancelVoiceUpload()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                                    <i class="fas fa-times mr-2"></i>İptal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Library -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Ses Kütüphanesi</h3>
+                    <button onclick="refreshVoiceLibrary()" class="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <i class="fas fa-sync-alt mr-2"></i>Yenile
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="voice-library">
+                    <!-- Voice profiles will be populated here -->
+                </div>
+            </div>
+
+            <!-- TTS API Settings -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Gelişmiş TTS Ayarları</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- ElevenLabs Integration -->
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-900 dark:text-gray-100">ElevenLabs API</h4>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Key</label>
+                            <input type="password" id="elevenlabs-api-key" placeholder="ElevenLabs API anahtarınızı girin" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Voice ID</label>
+                            <input type="text" id="elevenlabs-voice-id" placeholder="Kullanılacak ses ID'si" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+                        </div>
+                        <button onclick="testElevenLabsAPI()" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                            <i class="fas fa-test-tube mr-2"></i>API Test Et
+                        </button>
+                    </div>
+
+                    <!-- Voice Quality Settings -->
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-900 dark:text-gray-100">Ses Kalitesi Ayarları</h4>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Konuşma Hızı</label>
+                            <input type="range" id="speech-rate" min="0.5" max="2" step="0.1" value="0.85" class="w-full">
+                            <span class="text-sm text-gray-500 dark:text-gray-400" id="speech-rate-value">0.85x</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ses Tonu</label>
+                            <input type="range" id="speech-pitch" min="0.5" max="2" step="0.1" value="1.1" class="w-full">
+                            <span class="text-sm text-gray-500 dark:text-gray-400" id="speech-pitch-value">1.1x</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ses Seviyesi</label>
+                            <input type="range" id="speech-volume" min="0.1" max="1" step="0.1" value="0.9" class="w-full">
+                            <span class="text-sm text-gray-500 dark:text-gray-400" id="speech-volume-value">0.9x</span>
+                        </div>
+                        <button onclick="saveVoiceSettings()" class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                            <i class="fas fa-save mr-2"></i>Ayarları Kaydet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status Tab -->
+        <div id="system-tab" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Mistral API Durumu</h3>
+                    <div class="space-y-4" id="api-status">
+                        <!-- API status will be populated -->
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Sistem Logları</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm h-64 overflow-y-auto" id="system-logs">
+                        <!-- System logs will be populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Chat Detail Modal -->
+    <div id="chat-detail-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sohbet Detayı</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[60vh]" id="modal-content">
+                <!-- Modal content will be populated -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chat logs storage and management
+        let chatLogs = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // LocalStorage'dan sohbet kayıtlarını yükle
+        function loadChatLogsFromStorage() {
+            let stored = localStorage.getItem('tarpovizyon_chat_logs');
+            
+            // Eğer localStorage boşsa, sessionStorage backup'ını kontrol et
+            if (!stored) {
+                stored = sessionStorage.getItem('tarpovizyon_chat_logs_backup');
+                if (stored) {
+                    addSystemLog('Backup verilerden sohbet kayıtları geri yüklendi');
+                }
+            }
+            
+            if (stored) {
+                try {
+                    chatLogs = JSON.parse(stored);
+                } catch (e) {
+                    chatLogs = [];
+                    addSystemLog('Sohbet kayıtları parse edilemedi, sıfırlandı');
+                }
+            } else {
+                // Örnek veriler ekle
+                chatLogs = [
+                    {
+                        id: '1',
+                        userId: 'user_001',
+                        question: 'İneklerimde mastitis belirtileri görüyorum, ne yapmalıyım?',
+                        answer: 'Mastitis ciddi bir durumdur. Hemen veteriner hekim çağırın ve meme bezini temiz tutun.',
+                        timestamp: Date.now() - 86400000,
+                        apiUsed: true,
+                        model: 'gemini-1.5-flash'
+                    },
+                    {
+                        id: '2',
+                        userId: 'user_002',
+                        question: 'Buğday ekimi için en uygun zaman nedir?',
+                        answer: 'Buğday ekimi genellikle sonbahar aylarında (ekim-kasım) yapılır.',
+                        timestamp: Date.now() - 172800000,
+                        apiUsed: true,
+                        model: 'gemini-1.5-pro'
+                    }
+                ];
+                saveChatLogsToStorage();
+                addSystemLog('Varsayılan örnek veriler yüklendi');
+            }
+        }
+
+        // LocalStorage'a sohbet kayıtlarını kaydet
+        function saveChatLogsToStorage() {
+            localStorage.setItem('tarpovizyon_chat_logs', JSON.stringify(chatLogs));
+            // Backup olarak sessionStorage'a da kaydet
+            sessionStorage.setItem('tarpovizyon_chat_logs_backup', JSON.stringify(chatLogs));
+        }
+
+        // Global window fonksiyonu - Ana sayfadan sohbet kayıtlarını alabilmek için
+        window.addChatLogToAdmin = function(log) {
+            const newLog = {
+                id: log.id || Date.now().toString(),
+                userId: log.userId || 'Anonim',
+                question: log.question,
+                answer: log.answer,
+                timestamp: log.timestamp || Date.now(),
+                apiUsed: log.apiUsed || false,
+                model: log.model || 'Offline',
+                category: log.category || 'Genel'
+            };
+            chatLogs.unshift(newLog);
+            saveChatLogsToStorage();
+            
+            // Admin paneli açıksa güncelle
+            if (document.getElementById('admin-panel').style.display !== 'none') {
+                updateStats();
+                loadRecentActivities();
+                // Eğer sohbetler tabı açıksa tabloyu da güncelle
+                if (!document.getElementById('chats-tab').classList.contains('hidden')) {
+                    loadChatLogs();
+                }
+            }
+        };
+
+        // Yeni sohbet ekle
+        function addChatLog(log) {
+            const newLog = {
+                id: Date.now().toString(),
+                userId: log.userId || 'Anonim',
+                question: log.question,
+                answer: log.answer,
+                timestamp: Date.now(),
+                apiUsed: log.apiUsed || false,
+                model: log.model || 'Offline'
+            };
+            chatLogs.unshift(newLog);
+            saveChatLogsToStorage();
+            
+            // Admin paneli açıksa güncelle
+            if (document.getElementById('admin-panel').style.display !== 'none') {
+                updateStats();
+                loadRecentActivities();
+            }
+        }
+
+        // Sohbet sil
+        function deleteChatLog(index) {
+            if (confirm('Bu sohbet kaydını silmek istediğinizden emin misiniz?')) {
+                chatLogs.splice(index, 1);
+                saveChatLogsToStorage();
+                loadChatLogs();
+                updateStats();
+            }
+        }
+
+        // Ses profillerini localStorage'dan çek
+        function loadVoiceLibrary() {
+            const voices = JSON.parse(localStorage.getItem('tarpovizyon_voice_library') || '[]');
+            const container = document.getElementById('voice-library');
+            if (container) {
+                container.innerHTML = voices.map(voice => `
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="font-bold">${voice.name}</div>
+                            <div class="flex gap-2">
+                                <button onclick="testVoice('${voice.id}')" class="text-primary hover:text-primary/80 text-sm">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button onclick="setActiveVoice('${voice.id}')" class="text-green-600 hover:text-green-800 text-sm">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="deleteVoice('${voice.id}')" class="text-red-600 hover:text-red-800 text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">${voice.description || 'Özel ses profili'}</div>
+                    </div>
+                `).join('') || '<p class="text-gray-500 dark:text-gray-400">Henüz ses profili yüklenmemiş</p>';
+            }
+        }
+
+        // Ayarları localStorage'dan çek
+        function loadVoiceSettingsFromStorage() {
+            const settings = JSON.parse(localStorage.getItem('tarpovizyon_voice_settings') || '{}');
+            
+            if (settings.elevenLabsApiKey && document.getElementById('elevenlabs-api-key')) {
+                document.getElementById('elevenlabs-api-key').value = settings.elevenLabsApiKey;
+            }
+            if (settings.elevenLabsVoiceId && document.getElementById('elevenlabs-voice-id')) {
+                document.getElementById('elevenlabs-voice-id').value = settings.elevenLabsVoiceId;
+            }
+            if (settings.speechRate && document.getElementById('speech-rate')) {
+                document.getElementById('speech-rate').value = settings.speechRate;
+                updateRangeValues();
+            }
+            if (settings.speechPitch && document.getElementById('speech-pitch')) {
+                document.getElementById('speech-pitch').value = settings.speechPitch;
+                updateRangeValues();
+            }
+            if (settings.speechVolume && document.getElementById('speech-volume')) {
+                document.getElementById('speech-volume').value = settings.speechVolume;
+                updateRangeValues();
+            }
+        }
+
+        // Range değerlerini güncelle
+        function updateRangeValues() {
+            const rateElement = document.getElementById('speech-rate-value');
+            const pitchElement = document.getElementById('speech-pitch-value');
+            const volumeElement = document.getElementById('speech-volume-value');
+            
+            if (rateElement) rateElement.textContent = document.getElementById('speech-rate').value + 'x';
+            if (pitchElement) pitchElement.textContent = document.getElementById('speech-pitch').value + 'x';
+            if (volumeElement) volumeElement.textContent = document.getElementById('speech-volume').value + 'x';
+        }
+
+        // Sistem loglarını localStorage'dan çek
+        function loadSystemLogs() {
+            const logs = JSON.parse(localStorage.getItem('tarpovizyon_system_logs') || '[]');
+            const container = document.getElementById('system-logs');
+            if (container) {
+                const recentLogs = logs.slice(-50).reverse(); // Son 50 log
+                container.innerHTML = recentLogs.map(log => 
+                    `<div class="text-xs mb-1">[${new Date(log.timestamp).toLocaleTimeString('tr-TR')}] ${log.message}</div>`
+                ).join('') || '<div class="text-green-400">Sistem logları temiz</div>';
+                container.scrollTop = 0;
+            }
+        }
+
+        // Sistem logu ekle
+        function addSystemLog(message) {
+            const logs = JSON.parse(localStorage.getItem('tarpovizyon_system_logs') || '[]');
+            logs.push({
+                timestamp: Date.now(),
+                message: message
+            });
+            // Son 100 logu sakla
+            if (logs.length > 100) {
+                logs.splice(0, logs.length - 100);
+            }
+            localStorage.setItem('tarpovizyon_system_logs', JSON.stringify(logs));
+        }
+
+        // Tab Management
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sohbet kayıtlarını yükle
+            loadChatLogsFromStorage();
+            addSystemLog('Admin paneli başlatıldı');
+            addSystemLog(`${chatLogs.length} sohbet kaydı yüklendi`);
+            
+            const navTabs = document.querySelectorAll('.nav-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    navTabs.forEach(t => {
+                        t.classList.remove('active', 'border-primary', 'text-primary');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active', 'border-primary', 'text-primary');
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show target tab content
+                    document.getElementById(targetTab + '-tab').classList.remove('hidden');
+                    
+                    // Load tab specific data
+                    loadTabData(targetTab);
+                });
+            });
+
+            // Initialize dashboard
+            loadTabData('dashboard');
+        });
+
+        // Chat logs storage and management
+        // Bu satırlar kaldırıldı, sadece yukarıdaki API ile çalışan tanımlar kullanılacak.
+
+        // Load tab specific data
+        function loadTabData(tab) {
+            switch(tab) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'chats':
+                    loadChatLogs();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
+                case 'voice':
+                    loadVoiceSettings();
+                    break;
+                case 'system':
+                    loadSystemStatus();
+                    break;
+            }
+        }
+
+        // Dashboard functions
+        function loadDashboard() {
+            updateStats();
+            loadCharts();
+            loadRecentActivities();
+        }
+
+        function updateStats() {
+            const totalChatsElement = document.getElementById('total-chats');
+            const activeUsersElement = document.getElementById('active-users');
+            const apiCallsElement = document.getElementById('api-calls');
+            const systemStatusElement = document.getElementById('system-status');
+            
+            if (totalChatsElement) totalChatsElement.textContent = chatLogs.length;
+            if (activeUsersElement) activeUsersElement.textContent = getUniqueUsers();
+            if (apiCallsElement) apiCallsElement.textContent = getTotalApiCalls();
+            if (systemStatusElement) systemStatusElement.textContent = 'Çevrimiçi';
+        }
+
+        function getUniqueUsers() {
+            const users = new Set(chatLogs.map(log => log.userId || 'Anonim'));
+            return users.size;
+        }
+
+        function getTotalApiCalls() {
+            return chatLogs.filter(log => log.apiUsed).length;
+        }
+
+        function loadCharts() {
+            // Chat Trend Chart
+            const ctx1 = document.getElementById('chatTrendChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: getLast7Days(),
+                        datasets: [{
+                            label: 'Günlük Sohbetler',
+                            data: getDailyChatCounts(),
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Category Chart
+            const ctx2 = document.getElementById('categoryChart');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Hayvancılık', 'Bitkisel Üretim', 'Mera Yönetimi', 'Organik Tarım', 'Diğer'],
+                        datasets: [{
+                            data: getCategoryDistribution(),
+                            backgroundColor: [
+                                '#22c55e',
+                                '#16a34a',
+                                '#15803d',
+                                '#84cc16',
+                                '#65a30d'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+            }
+        }
+
+        function getLast7Days() {
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push(date.toLocaleDateString('tr-TR'));
+            }
+            return days;
+        }
+
+        function getDailyChatCounts() {
+            const days = getLast7Days();
+            return days.map(day => {
+                return chatLogs.filter(log => {
+                    const logDate = new Date(log.timestamp).toLocaleDateString('tr-TR');
+                    return logDate === day;
+                }).length;
+            });
+        }
+
+        function getCategoryDistribution() {
+            const categories = {
+                'hayvancılık': 0,
+                'bitkisel': 0,
+                'mera': 0,
+                'organik': 0,
+                'diğer': 0
+            };
+
+            chatLogs.forEach(log => {
+                const question = log.question.toLowerCase();
+                if (question.includes('hayvan') || question.includes('süt') || question.includes('sağım')) {
+                    categories.hayvancılık++;
+                } else if (question.includes('bitki') || question.includes('ekim') || question.includes('hasat')) {
+                    categories.bitkisel++;
+                } else if (question.includes('mera') || question.includes('otlak')) {
+                    categories.mera++;
+                } else if (question.includes('organik')) {
+                    categories.organik++;
+                } else {
+                    categories.diğer++;
+                }
+            });
+
+            return Object.values(categories);
+        }
+
+        function loadRecentActivities() {
+            const container = document.getElementById('recent-activities');
+            const recentLogs = chatLogs.slice(-5).reverse();
+            
+            container.innerHTML = recentLogs.map(log => `
+                <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <i class="fas fa-comment text-white text-xs"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            ${log.userId || 'Anonim Kullanıcı'} - ${log.question.substring(0, 50)}...
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            ${new Date(log.timestamp).toLocaleString('tr-TR')}
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Chat logs functions
+        function loadChatLogs() {
+            renderChatTable();
+            updatePagination();
+        }
+
+        function renderChatTable() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedLogs = chatLogs.slice(startIndex, endIndex);
+
+            const tbody = document.getElementById('chat-logs-table');
+            tbody.innerHTML = paginatedLogs.map((log, index) => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        #${startIndex + index + 1}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                        ${log.userId || 'Anonim'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        TarpoVizyon AI
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">
+                        ${log.question}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">
+                        ${log.answer}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        ${new Date(log.timestamp).toLocaleString('tr-TR')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="viewChatDetail(${startIndex + index})" class="text-primary hover:text-primary/80 mr-3">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="deleteChatLog(${startIndex + index})" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(chatLogs.length / itemsPerPage);
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, chatLogs.length);
+
+            document.getElementById('pagination-info').textContent = 
+                `${startItem}-${endItem} arası gösteriliyor (toplam ${chatLogs.length} kayıt)`;
+            
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        function viewChatDetail(index) {
+            const log = chatLogs[index];
+            const modal = document.getElementById('chat-detail-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kullanıcı ID:</label>
+                            <p class="text-sm text-gray-900 dark:text-gray-100">${log.userId || 'Anonim'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tarih:</label>
+                            <p class="text-sm text-gray-900 dark:text-gray-100">${new Date(log.timestamp).toLocaleString('tr-TR')}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Soru:</label>
+                        <div class="mt-1 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                            <p class="text-sm text-gray-900 dark:text-gray-100">${log.question}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cevap:</label>
+                        <div class="mt-1 p-3 bg-primary/10 rounded-lg">
+                            <p class="text-sm text-gray-900 dark:text-gray-100">${log.answer}</p>
+                        </div>
+                    </div>
+                    ${log.apiUsed ? `<div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Model:</label>
+                        <p class="text-sm text-gray-900 dark:text-gray-100">${log.model || 'Bilinmiyor'}</p>
+                    </div>` : ''}
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function deleteChatLog(index) {
+            if (confirm('Bu sohbet kaydını silmek istediğinizden emin misiniz?')) {
+                chatLogs.splice(index, 1);
+                saveChatLogsToStorage();
+                loadChatLogs();
+                updateStats();
+                addSystemLog(`Sohbet kaydı silindi (Index: ${index})`);
+            }
+        }
+
+        // Export function
+        function exportChats() {
+            const csv = convertToCSV(chatLogs);
+            downloadCSV(csv, 'tarpovizyon_chat_logs.csv');
+        }
+
+        function convertToCSV(data) {
+            const headers = ['ID', 'Kullanıcı', 'Soru', 'Cevap', 'Tarih', 'Model'];
+            const csvContent = [headers.join(',')];
+            
+            data.forEach((log, index) => {
+                const row = [
+                    index + 1,
+                    `"${(log.userId || 'Anonim').replace(/"/g, '""')}"`,
+                    `"${log.question.replace(/"/g, '""')}"`,
+                    `"${log.answer.replace(/"/g, '""')}"`,
+                    `"${new Date(log.timestamp).toLocaleString('tr-TR')}"`,
+                    `"${log.model || 'Offline'}"`
+                ];
+                csvContent.push(row.join(','));
+            });
+            
+            return csvContent.join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Analytics functions
+        function loadAnalytics() {
+            loadPopularQuestions();
+            loadResponseTimeChart();
+            loadHourlyUsageChart();
+            loadModelStats();
+        }
+
+        function loadPopularQuestions() {
+            const questionCounts = {};
+            chatLogs.forEach(log => {
+                const question = log.question.toLowerCase();
+                if (questionCounts[question]) {
+                    questionCounts[question]++;
+                } else {
+                    questionCounts[question] = 1;
+                }
+            });
+
+            const sorted = Object.entries(questionCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+
+            const container = document.getElementById('popular-questions');
+            container.innerHTML = sorted.map(([question, count]) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-sm text-gray-900 dark:text-gray-100 truncate">${question.substring(0, 50)}...</p>
+                    <span class="text-sm font-semibold text-primary">${count}x</span>
+                </div>
+            `).join('');
+        }
+
+        function loadResponseTimeChart() {
+            const ctx = document.getElementById('responseTimeChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0-1s', '1-2s', '2-3s', '3-5s', '5s+'],
+                        datasets: [{
+                            label: 'Yanıt Süreleri',
+                            data: [45, 30, 15, 8, 2],
+                            backgroundColor: '#22c55e'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+            }
+        }
+
+        function loadHourlyUsageChart() {
+            const ctx = document.getElementById('hourlyUsageChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({length: 24}, (_, i) => i + ':00'),
+                        datasets: [{
+                            label: 'Saatlik Kullanım',
+                            data: Array.from({length: 24}, () => Math.floor(Math.random() * 10)),
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+            }
+        }
+
+        function loadModelStats() {
+            const modelCounts = {};
+            chatLogs.forEach(log => {
+                const model = log.model || 'Offline';
+                modelCounts[model] = (modelCounts[model] || 0) + 1;
+            });
+
+            const container = document.getElementById('model-stats');
+            container.innerHTML = Object.entries(modelCounts).map(([model, count]) => `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-gray-100">${model}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: ${(count / chatLogs.length) * 100}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">${count}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // System status functions
+        function loadSystemStatus() {
+            loadApiStatus();
+            loadSystemLogs();
+        }
+
+        function loadApiStatus() {
+            const models = [
+                'gemini-2.5-pro',
+                'gemini-2.5-flash', 
+                'gemini-2.0-flash',
+                'gemini-2.5-flash-lite',
+                'gemini-1.5-pro',
+                'gemini-1.5-flash'
+            ];
+
+            const container = document.getElementById('api-status');
+            container.innerHTML = models.map(model => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">${model}</span>
+                    <span class="text-sm status-online">
+                        <i class="fas fa-circle text-xs mr-1"></i>
+                        Aktif
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function loadSystemLogs() {
+            fetch(`${API_BASE}/logs`)
+        .then(res => res.json())
+        .then(logs => {
+            const container = document.getElementById('system-logs');
+            container.innerHTML = logs.map(log => 
+                `<div>${log.time} ${log.message}</div>`
+            ).join('');
+        });
+        }
+
+        // Event listeners
+        document.getElementById('export-chats').addEventListener('click', exportChats);
+        
+        document.getElementById('clear-all-chats').addEventListener('click', function() {
+            if (confirm('Tüm sohbet kayıtlarını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                chatLogs = [];
+                saveChatLogsToStorage();
+                loadChatLogs();
+                updateStats();
+                addSystemLog('Tüm sohbet kayıtları silindi');
+                alert('Tüm sohbet kayıtları silindi.');
+            }
+        });
+
+        document.getElementById('close-modal').addEventListener('click', function() {
+            document.getElementById('chat-detail-modal').classList.add('hidden');
+        });
+
+        document.getElementById('prev-page').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderChatTable();
+                updatePagination();
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', function() {
+            const totalPages = Math.ceil(chatLogs.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderChatTable();
+                updatePagination();
+            }
+        });
+
+        // Filters
+        document.getElementById('apply-filters').addEventListener('click', function() {
+            const dateFilter = document.getElementById('date-filter').value;
+            const searchFilter = document.getElementById('search-filter').value.toLowerCase();
+            
+            let filteredLogs = [...chatLogs];
+            
+            if (dateFilter) {
+                filteredLogs = filteredLogs.filter(log => {
+                    const logDate = new Date(log.timestamp).toISOString().split('T')[0];
+                    return logDate === dateFilter;
+                });
+            }
+            
+            if (searchFilter) {
+                filteredLogs = filteredLogs.filter(log => 
+                    log.question.toLowerCase().includes(searchFilter) || 
+                    log.answer.toLowerCase().includes(searchFilter)
+                );
+            }
+            
+            // Temporarily replace chatLogs for rendering
+            const originalLogs = chatLogs;
+            chatLogs = filteredLogs;
+            currentPage = 1;
+            renderChatTable();
+            updatePagination();
+            
+            // Restore original after a delay to show filtered results
+            setTimeout(() => {
+                chatLogs = originalLogs;
+            }, 100);
+        });
+
+        // Voice Settings Functions
+        function loadVoiceSettings() {
+            loadCurrentVoiceProfile();
+            loadVoiceLibrary();
+            loadVoiceSettingsFromStorage();
+        }
+
+        function loadCurrentVoiceProfile() {
+            const currentVoice = JSON.parse(localStorage.getItem('tarpovizyon_current_voice') || '{}');
+            const profileContainer = document.getElementById('current-voice-profile');
+            
+            if (currentVoice.name) {
+                profileContainer.innerHTML = `
+                    <div class="flex items-center gap-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                            <i class="fas fa-volume-up text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900 dark:text-gray-100">${currentVoice.name}</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${currentVoice.description || 'Özel ses profili'}</p>
+                        </div>
+                        <button onclick="testCurrentVoice()" class="px-3 py-1 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">
+                            <i class="fas fa-play mr-1"></i>Test Et
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function loadVoiceLibrary() {
+            const voices = JSON.parse(localStorage.getItem('tarpovizyon_voice_library') || '[]');
+            const container = document.getElementById('voice-library');
+            if (container) {
+                container.innerHTML = voices.map(voice => `
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="font-bold">${voice.name}</div>
+                            <div class="flex gap-2">
+                                <button onclick="testVoice('${voice.id}')" class="text-primary hover:text-primary/80 text-sm">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button onclick="setActiveVoice('${voice.id}')" class="text-green-600 hover:text-green-800 text-sm">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="deleteVoice('${voice.id}')" class="text-red-600 hover:text-red-800 text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">${voice.description || 'Özel ses profili'}</div>
+                    </div>
+                `).join('') || '<p class="text-gray-500 dark:text-gray-400">Henüz ses profili yüklenmemiş</p>';
+            }
+        }
+
+        function loadVoiceSettingsFromStorage() {
+            const settings = JSON.parse(localStorage.getItem('tarpovizyon_voice_settings') || '{}');
+            
+            if (settings.elevenLabsApiKey && document.getElementById('elevenlabs-api-key')) {
+                document.getElementById('elevenlabs-api-key').value = settings.elevenLabsApiKey;
+            }
+            if (settings.elevenLabsVoiceId && document.getElementById('elevenlabs-voice-id')) {
+                document.getElementById('elevenlabs-voice-id').value = settings.elevenLabsVoiceId;
+            }
+            if (settings.speechRate && document.getElementById('speech-rate')) {
+                document.getElementById('speech-rate').value = settings.speechRate;
+                updateRangeValues();
+            }
+            if (settings.speechPitch && document.getElementById('speech-pitch')) {
+                document.getElementById('speech-pitch').value = settings.speechPitch;
+                updateRangeValues();
+            }
+            if (settings.speechVolume && document.getElementById('speech-volume')) {
+                document.getElementById('speech-volume').value = settings.speechVolume;
+                updateRangeValues();
+            }
+        }
+
+        // Voice upload functions
+        document.getElementById('voice-file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const allowedTypes = ['audio/mp3', 'audio/wav', 'audio/x-m4a', 'audio/mpeg'];
+                if (allowedTypes.includes(file.type) || file.name.toLowerCase().match(/\\.(mp3|wav|m4a)$/)) {
+                    document.getElementById('voice-upload-form').classList.remove('hidden');
+                    document.getElementById('voice-name').value = file.name.replace(/\\.[^/.]+$/, "");
+                } else {
+                    alert('Desteklenmeyen dosya formatı. Lütfen MP3, WAV veya M4A dosyası seçin.');
+                }
+            }
+        });
+
+        function uploadVoiceFile() {
+            const fileInput = document.getElementById('voice-file-input');
+            const name = document.getElementById('voice-name').value;
+            const description = document.getElementById('voice-description').value;
+            
+            if (!fileInput.files[0] || !name) {
+                alert('Lütfen dosya seçin ve ses profili adını girin.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const voiceProfile = {
+                    id: Date.now().toString(),
+                    name: name,
+                    description: description,
+                    fileName: file.name,
+                    fileSize: file.size,
+                    audioData: e.target.result,
+                    uploadDate: Date.now(),
+                    type: 'custom'
+                };
+
+                // Save to voice library
+                let voices = JSON.parse(localStorage.getItem('tarpovizyon_voice_library') || '[]');
+                voices.push(voiceProfile);
+                localStorage.setItem('tarpovizyon_voice_library', JSON.stringify(voices));
+
+                // Reset form
+                cancelVoiceUpload();
+                loadVoiceLibrary();
+                
+                alert('Ses profili başarıyla yüklendi!');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function cancelVoiceUpload() {
+            document.getElementById('voice-upload-form').classList.add('hidden');
+            document.getElementById('voice-file-input').value = '';
+            document.getElementById('voice-name').value = '';
+            document.getElementById('voice-description').value = '';
+        }
+
+        function testVoice(voiceId) {
+            const voices = JSON.parse(localStorage.getItem('tarpovizyon_voice_library') || '[]');
+            const voice = voices.find(v => v.id === voiceId);
+            
+            if (voice && voice.audioData) {
+                const audio = new Audio(voice.audioData);
+                audio.play().catch(e => {
+                    alert('Ses dosyası oynatılamadı.');
+                });
+            }
+        }
+
+        function setActiveVoice(voiceId) {
+            const voices = JSON.parse(localStorage.getItem('tarpovizyon_voice_library') || '[]');
+            const voice = voices.find(v => v.id === voiceId);
+            
+            if (voice) {
+                localStorage.setItem('tarpovizyon_current_voice', JSON.stringify(voice));
+                loadCurrentVoiceProfile();
+                alert(`"${voice.name}" aktif ses profili olarak ayarlandı.`);
+            }
+        }
+
+        function deleteVoice(voiceId) {
+            if (confirm('Bu ses profilini silmek istediğinizden emin misiniz?')) {
+                let voices = JSON.parse(localStorage.getItem('tarpovizyon_voice_library') || '[]');
+                voices = voices.filter(v => v.id !== voiceId);
+                localStorage.setItem('tarpovizyon_voice_library', JSON.stringify(voices));
+                loadVoiceLibrary();
+            }
+        }
+
+        function testCurrentVoice() {
+            const testText = "Merhaba! Ben TarpoVizyon AI. Tarım ve hayvancılık alanında uzmanlaşmış yapay zeka asistanınızım.";
+            
+            // Test current voice settings
+            const utterance = new SpeechSynthesisUtterance(testText);
+            const settings = JSON.parse(localStorage.getItem('tarpovizyon_voice_settings') || '{}');
+            
+            utterance.lang = 'tr-TR';
+            utterance.rate = parseFloat(settings.speechRate || 0.85);
+            utterance.pitch = parseFloat(settings.speechPitch || 1.1);
+            utterance.volume = parseFloat(settings.speechVolume || 0.9);
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        function testElevenLabsAPI() {
+            const apiKey = document.getElementById('elevenlabs-api-key').value;
+            const voiceId = document.getElementById('elevenlabs-voice-id').value;
+            
+            if (!apiKey || !voiceId) {
+                alert('Lütfen API key ve Voice ID alanlarını doldurun.');
+                return;
+            }
+
+            // Test API call
+            const testText = "TarpoVizyon AI ses testi";
+            
+            fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Content-Type': 'application/json',
+                    'xi-api-key': apiKey
+                },
+                body: JSON.stringify({
+                    text: testText,
+                    model_id: "eleven_multilingual_v2"
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('ElevenLabs API bağlantısı başarılı!');
+                    return response.blob();
+                } else {
+                    throw new Error('API bağlantısı başarısız: ' + response.status);
+                }
+            })
+            .then(blob => {
+                const audio = new Audio(URL.createObjectURL(blob));
+                audio.play();
+            })
+            .catch(error => {
+                alert('API testi başarısız: ' + error.message);
+            });
+        }
+
+        function saveVoiceSettings() {
+            const settings = {
+                elevenLabsApiKey: document.getElementById('elevenlabs-api-key').value,
+                elevenLabsVoiceId: document.getElementById('elevenlabs-voice-id').value,
+                speechRate: parseFloat(document.getElementById('speech-rate').value),
+                speechPitch: parseFloat(document.getElementById('speech-pitch').value),
+                speechVolume: parseFloat(document.getElementById('speech-volume').value)
+            };
+
+            localStorage.setItem('tarpovizyon_voice_settings', JSON.stringify(settings));
+            alert('Ses ayarları kaydedildi!');
+        }
+
+        function refreshVoiceLibrary() {
+            loadVoiceLibrary();
+        }
+
+        // Range input listeners
+        document.getElementById('speech-rate').addEventListener('input', updateRangeValues);
+        document.getElementById('speech-pitch').addEventListener('input', updateRangeValues);
+        document.getElementById('speech-volume').addEventListener('input', updateRangeValues);
+
+        // Auto refresh every 30 seconds
+        setInterval(() => {
+            const activeTab = document.querySelector('.nav-tab.active').getAttribute('data-tab');
+            loadTabData(activeTab);
+        }, 30000);
+    </script>
+</body>
+</html>
