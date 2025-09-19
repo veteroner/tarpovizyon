@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI Widget</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            width: 300px; 
+            height: 600px; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        .widget-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <iframe 
+        src="https://tarpovizyonai.netlify.app/mobile-embed" 
+        class="widget-container"
+        frameborder="0"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+        referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+</body>
+</html>

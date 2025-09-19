@@ -1,21 +1,20 @@
-# Global headers - iframe desteği için
-/*
-  Content-Security-Policy: frame-ancestors *
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-
-# Embed sayfaları için özel iframe izni
-/embed.html
-  Content-Security-Policy: frame-ancestors *
-
+# İframe desteği için minimal headers
 /mobile-embed.html
-  Content-Security-Policy: frame-ancestors *
+  # X-Frame-Options header'ını tamamen kaldır
+  
+/embed.html
+  # X-Frame-Options header'ını tamamen kaldır
 
-/tarpovizyon.html
-  Content-Security-Policy: frame-ancestors *
+/widget.html
+  # X-Frame-Options header'ını tamamen kaldır
 
 # API endpoints
 /api/*
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
   Access-Control-Allow-Headers: Content-Type, Authorization
+
+# Diğer sayfalarda normal güvenlik
+/tarpovizyon.html
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff

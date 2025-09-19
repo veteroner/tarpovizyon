@@ -21,10 +21,10 @@
   to = "/mobile-embed.html"
   status = 200
 
-# Mobil kısa link
+# Widget sayfası yönlendirmesi
 [[redirects]]
-  from = "/m"
-  to = "/mobile-embed.html"
+  from = "/widget"
+  to = "/widget.html"
   status = 200
 
 # Gemini API proxy route
@@ -57,38 +57,14 @@
   to = "/tarpovizyon.html"
   status = 404
 
-# CORS ve güvenlik başlıkları
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "SAMEORIGIN"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# İframe entegrasyonu için özel header - Ana sayfa
+# Minimal güvenlik headers - iframe desteği için
 [[headers]]
   for = "/tarpovizyon.html"
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
 
-# Embed sayfaları için iframe desteği
-[[headers]]
-  for = "/embed.html"
-  [headers.values]
-    Content-Security-Policy = "frame-ancestors *"
-
-# Mobil embed için iframe desteği
-[[headers]]
-  for = "/mobile-embed.html"
-  [headers.values]
-    Content-Security-Policy = "frame-ancestors *"
-
-# Embed klasörü için genel iframe desteği
-[[headers]]
-  for = "/embed/*"
-  [headers.values]
-    Content-Security-Policy = "frame-ancestors *"
+# Embed sayfaları için header yok (iframe izni)
+# /mobile-embed.html, /embed.html, /widget.html için header tanımlanmadı
 
 # API fonksiyonları için CORS
 [[headers]]
