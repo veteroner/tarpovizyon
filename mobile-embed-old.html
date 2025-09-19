@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TarpoVizyon AI - Mobil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-size: 12px;
+            max-width: 300px;
+            overflow-x: hidden;
+        }
+        .chat-bubble { 
+            animation: slideIn 0.2s ease-out; 
+        }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateY(5px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .typing-indicator { 
+            animation: bounce 1.2s infinite; 
+        }
+        @keyframes bounce { 
+            0%, 80%, 100% { transform: scale(0); } 
+            40% { transform: scale(1); } 
+        }
+        
+        /* Mobil optimizasyon */
+        .mobile-text { font-size: 11px; line-height: 1.3; }
+        .mobile-input { font-size: 12px; }
+        .mobile-button { min-width: 28px; height: 28px; }
+        .mobile-icon { font-size: 10px; }
+        .mobile-logo { width: 16px; height: 16px; }
+        .mobile-header { padding: 8px; }
+        .mobile-message { padding: 6px 8px; margin: 4px 0; max-width: 220px; }
+        .mobile-chat-area { padding: 6px; }
+        .mobile-input-area { padding: 6px; }
+        
+        /* Scroll optimizasyonu */
+        .scroll-container::-webkit-scrollbar { width: 2px; }
+        .scroll-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .scroll-container::-webkit-scrollbar-thumb { background: #888; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans h-full">
+
+    <!-- Mobil Chat Container - 300x600 için optimize -->
+    <div class="h-full flex flex-col max-w-[300px] mx-auto">
+        
+        <!-- Kompakt Header -->
+        <div class="bg-gradient-to-r from-green-600 to-blue-600 text-white flex-shrink-0 mobile-header">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                    <div class="w-5 h-5 bg-white/10 rounded flex items-center justify-center">
+                        <img src="tarpol logo.png" alt="T" class="mobile-logo object-contain">
+                    </div>
+                    <span class="font-semibold mobile-text">TarpoVizyon AI</span>
+                </div>
+                <button id="clear-chat" class="mobile-button hover:bg-white/20 rounded mobile-icon flex items-center justify-center" title="Temizle">
+                    <i class="fas fa-refresh mobile-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Messages - Scroll area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto mobile-chat-area space-y-2 scroll-container" style="height: calc(600px - 90px);">
+            <!-- Karşılama Mesajı -->
+            <div class="flex items-start gap-1 chat-bubble">
+                <div class="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <img src="tarpol logo.png" alt="AI" class="w-2 h-2 object-contain">
+                </div>
+                <div class="bg-white rounded-lg mobile-message shadow-sm">
+                    <p class="text-gray-800 mobile-text">
+                        Merhaba! Ben TarpoVizyon AI. Tarım ve hayvancılık sorularınızı yanıtlayabilirim 🌾
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kompakt Input Area -->
+        <div class="border-t border-gray-200 flex-shrink-0 mobile-input-area bg-white">
+            <form id="chat-form" class="flex gap-1">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Sorunuzu yazın..." 
+                    class="flex-1 px-2 py-2 mobile-input bg-gray-100 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500 text-gray-900"
+                    autocomplete="off"
+                    maxlength="200"
+                >
+                <button 
+                    type="submit" 
+                    id="send-button"
+                    class="mobile-button bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white rounded transition-all flex items-center justify-center"
+                >
+                    <i class="fas fa-paper-plane mobile-icon"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mobil optimizasyonlu JavaScript
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const sendButton = document.getElementById('send-button');
+        const clearChatBtn = document.getElementById('clear-chat');
+
+        // Mesaj ekleme - mobil optimize
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start gap-1 chat-bubble ${isUser ? 'justify-end' : ''}`;
+            
+            if (isUser) {
+                messageDiv.innerHTML = `
+                    <div class="bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg mobile-message max-w-[200px]">
+                        <p class="mobile-text">${message}</p>
+                    </div>
+                    <div class="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-gray-600" style="font-size: 8px;"></i>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <img src="tarpol logo.png" alt="AI" class="w-2 h-2 object-contain">
+                    </div>
+                    <div class="bg-white rounded-lg mobile-message shadow-sm max-w-[220px]">
+                        <div class="text-gray-800 mobile-text">${formatMarkdown(message)}</div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Basit markdown formatı - mobil optimize
+        function formatMarkdown(text) {
+            if (!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // Mobil yazıyor göstergesi
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex items-start gap-1 chat-bubble';
+            typingDiv.innerHTML = `
+                <div class="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <img src="tarpol logo.png" alt="AI" class="w-2 h-2 object-contain">
+                </div>
+                <div class="bg-white rounded-lg mobile-message shadow-sm">
+                    <div class="flex gap-1 items-center">
+                        <div class="w-1 h-1 bg-gray-400 rounded-full typing-indicator"></div>
+                        <div class="w-1 h-1 bg-gray-400 rounded-full typing-indicator" style="animation-delay: 0.2s"></div>
+                        <div class="w-1 h-1 bg-gray-400 rounded-full typing-indicator" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typingDiv = document.getElementById('typing-indicator');
+            if (typingDiv) typingDiv.remove();
+        }
+
+        // API çağrısı
+        async function sendMessage(message) {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'gemini-2.5-flash',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Sen TarpoVizyon AI, tarım ve hayvancılık uzmanısın. Mobil cihaz için ÇOK KISA ve ÖZ yanıtlar ver. Maximum 100 kelime.'
+                            },
+                            {
+                                role: 'user',
+                                content: message
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 300
+                    })
+                });
+
+                if (!response.ok) throw new Error('API hatası');
+                
+                const data = await response.json();
+                return data.choices?.[0]?.message?.content || 'Üzgünüm, yanıt alamadım.';
+            } catch (error) {
+                console.error('API Error:', error);
+                return 'Üzgünüm, şu anda teknik sorun yaşıyorum.';
+            }
+        }
+
+        // Form submit - mobil optimize
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Kullanıcı mesajını ekle
+            addMessage(message, true);
+            userInput.value = '';
+            sendButton.disabled = true;
+
+            // Yazıyor göster
+            showTyping();
+
+            // API'den yanıt al
+            const response = await sendMessage(message);
+            
+            // Yazıyor gizle ve yanıtı ekle
+            hideTyping();
+            addMessage(response);
+            sendButton.disabled = false;
+            
+            // Input'a focus geri ver
+            userInput.focus();
+        });
+
+        // Temizle
+        clearChatBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            chatMessages.innerHTML = `
+                <div class="flex items-start gap-1 chat-bubble">
+                    <div class="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <img src="tarpol logo.png" alt="AI" class="w-2 h-2 object-contain">
+                    </div>
+                    <div class="bg-white rounded-lg mobile-message shadow-sm">
+                        <p class="text-gray-800 mobile-text">
+                            Merhaba! Ben TarpoVizyon AI. Tarım ve hayvancılık sorularınızı yanıtlayabilirim 🌾
+                        </p>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Mobil dokunmatik optimizasyonu
+        userInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 300);
+        });
+
+        // Enter tuşu desteği
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
